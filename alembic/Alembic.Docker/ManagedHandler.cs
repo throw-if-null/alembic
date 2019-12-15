@@ -20,7 +20,6 @@ namespace Alembic.Docker
 
         private readonly StreamOpener _streamOpener;
         private readonly SocketOpener _socketOpener;
-        //private IWebProxy _proxy;
 
         public ManagedHandler()
         {
@@ -36,23 +35,6 @@ namespace Alembic.Docker
         {
             _socketOpener = opener ?? throw new ArgumentNullException(nameof(opener));
         }
-
-        //public IWebProxy Proxy
-        //{
-        //    get
-        //    {
-        //        if (_proxy == null)
-        //            _proxy = WebRequest.DefaultWebProxy;
-
-        //        return _proxy;
-        //    }
-        //    set
-        //    {
-        //        _proxy = value;
-        //    }
-        //}
-
-        //public bool UseProxy { get; set; } = true;
 
         public int MaxAutomaticRedirects { get; set; } = 20;
 
@@ -176,11 +158,6 @@ namespace Alembic.Docker
                 throw new HttpRequestException("Connection failed", sox);
             }
 
-            //if (proxyMode == ProxyMode.Tunnel)
-            //    await TunnelThroughProxyAsync(request, transport, cancellationToken);
-
-            //Debug.Assert(!(proxyMode == ProxyMode.Http && request.IsHttps()));
-
             if (request.IsHttps())
             {
                 var sslStream = new SslStream(transport, false, ServerCertificateValidationCallback);
@@ -266,52 +243,6 @@ namespace Alembic.Docker
             }
         }
 
-        //private ProxyMode DetermineProxyModeAndAddressLine(HttpRequestMessage request)
-        //{
-        //    string scheme = request.GetSchemeProperty();
-        //    string host = request.GetHostProperty();
-        //    int? port = request.GetPortProperty();
-        //    string pathAndQuery = request.GetPathAndQueryProperty();
-        //    string addressLine = request.GetAddressLineProperty();
-
-        //    if (string.IsNullOrEmpty(addressLine))
-        //        request.SetAddressLineProperty(pathAndQuery);
-
-        //    try
-        //    {
-        //        if (!UseProxy || (Proxy == null) || Proxy.IsBypassed(request.RequestUri))
-        //            return ProxyMode.None;
-        //    }
-        //    catch (PlatformNotSupportedException)
-        //    {
-        //        return ProxyMode.None;
-        //    }
-
-        //    var proxyUri = Proxy.GetProxy(request.RequestUri);
-        //    if (proxyUri == null)
-        //        return ProxyMode.None;
-
-        //    if (request.IsHttp())
-        //    {
-        //        if (string.IsNullOrEmpty(addressLine))
-        //        {
-        //            addressLine = scheme + "://" + host + ":" + port.Value + pathAndQuery;
-        //            request.SetAddressLineProperty(addressLine);
-        //        }
-
-        //        request.SetConnectionHostProperty(proxyUri.DnsSafeHost);
-        //        request.SetConnectionPortProperty(proxyUri.Port);
-
-        //        return ProxyMode.Http;
-        //    }
-
-        //    // Tunneling generates a completely seperate request, don't alter the original, just the connection address.
-        //    request.SetConnectionHostProperty(proxyUri.DnsSafeHost);
-        //    request.SetConnectionPortProperty(proxyUri.Port);
-
-        //    return ProxyMode.Tunnel;
-        //}
-
         private static async Task<Socket> TCPSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
         {
             var addresses = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);
@@ -345,44 +276,6 @@ namespace Alembic.Docker
             }
 
             return connectedSocket;
-        }
-
-        private async Task TunnelThroughProxyAsync(HttpRequestMessage request, Stream transport, CancellationToken cancellationToken)
-        {
-            // Send a Connect request:
-            // CONNECT server.example.com:80 HTTP / 1.1
-            // Host: server.example.com:80
-            var connectRequest = new HttpRequestMessage();
-            connectRequest.Version = new Version(1, 11);
-
-            connectRequest.Headers.ProxyAuthorization = request.Headers.ProxyAuthorization;
-            connectRequest.Method = new HttpMethod("CONNECT");
-
-            // TODO: IPv6 hosts
-            string authority = request.GetHostProperty() + ":" + request.GetPortProperty().Value;
-            connectRequest.SetAddressLineProperty(authority);
-            connectRequest.Headers.Host = authority;
-
-            HttpConnection connection = new HttpConnection(new BufferedReadStream(transport, null));
-            HttpResponseMessage connectResponse;
-            try
-            {
-                connectResponse = await connection.SendAsync(connectRequest, cancellationToken);
-                // TODO:? await connectResponse.Content.LoadIntoBufferAsync(); // Drain any body
-                // There's no danger of accidentally consuming real response data because the real request hasn't been sent yet.
-            }
-            catch (Exception ex)
-            {
-                transport.Dispose();
-                throw new HttpRequestException("SSL Tunnel failed to initialize", ex);
-            }
-
-            // Listen for a response. Any 2XX is considered success, anything else is considered a failure.
-            if ((int)connectResponse.StatusCode < 200 || 300 <= (int)connectResponse.StatusCode)
-            {
-                transport.Dispose();
-                throw new HttpRequestException("Failed to negotiate the proxy tunnel: " + connectResponse.ToString());
-            }
         }
     }
 }

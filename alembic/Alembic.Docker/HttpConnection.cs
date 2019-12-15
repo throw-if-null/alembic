@@ -87,8 +87,10 @@ namespace Alembic.Docker
                     builder.Append("Transfer-Encoding: chunked\r\n");
                 }
             }
+
             // Headers end with an empty line
             builder.Append("\r\n");
+
             return builder.ToString();
         }
 
