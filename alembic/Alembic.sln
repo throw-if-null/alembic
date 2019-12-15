@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alembic", "Alembic\Alembic.csproj", "{D108B892-3691-45E6-876B-2B8DBC7AFCC3}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9A7E22CE-283E-4273-B665-AAE63CFF29C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alembic.Docker", "Alembic.Docker\Alembic.Docker.csproj", "{FF038EAE-DEB4-436F-AE32-99D661B9E934}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D108B892-3691-45E6-876B-2B8DBC7AFCC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D108B892-3691-45E6-876B-2B8DBC7AFCC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D108B892-3691-45E6-876B-2B8DBC7AFCC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D108B892-3691-45E6-876B-2B8DBC7AFCC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A7E22CE-283E-4273-B665-AAE63CFF29C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A7E22CE-283E-4273-B665-AAE63CFF29C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A7E22CE-283E-4273-B665-AAE63CFF29C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A7E22CE-283E-4273-B665-AAE63CFF29C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF038EAE-DEB4-436F-AE32-99D661B9E934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF038EAE-DEB4-436F-AE32-99D661B9E934}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF038EAE-DEB4-436F-AE32-99D661B9E934}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF038EAE-DEB4-436F-AE32-99D661B9E934}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {350C2F91-6605-49E4-9D56-7B51858A51DE}
+	EndGlobalSection
+EndGlobal

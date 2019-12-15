@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  alembic:
+    image: ${DOCKER_REGISTRY-}alembic
+    build:
+      context: .
+      dockerfile: Alembic/Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
