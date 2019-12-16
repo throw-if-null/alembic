@@ -32,9 +32,9 @@ namespace Alembic.Services
     {
         private static readonly TimeSpan Timeout = TimeSpan.FromMinutes(2);
 
-        private readonly DockerClient _client;
+        private readonly DockerApi _client;
 
-        public DockerMonitor(DockerClient client)
+        public DockerMonitor(DockerApi client)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
         }

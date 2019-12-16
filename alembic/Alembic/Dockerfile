@@ -6,6 +6,7 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["Alembic/Alembic.csproj", "Alembic/"]
+COPY ["Alembic.Docker/Alembic.Docker.csproj", "Alembic.Docker/"]
 RUN dotnet restore "Alembic/Alembic.csproj"
 COPY . .
 WORKDIR "/src/Alembic"

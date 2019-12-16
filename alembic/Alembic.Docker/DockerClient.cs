@@ -1,97 +1,41 @@
-﻿using Alembic.Docker.Streaming;
+﻿using Alembic.Docker.Client;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Pipes;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using static Alembic.Docker.DockerApi;
 
 namespace Alembic.Docker
 {
-    public sealed class DockerClient
+    public interface IDockerApi
+    {
+        Task<(HttpStatusCode, string)> MakeRequestAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken token);
+
+        Task<Stream> MakeRequestForStreamAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken token);
+    }
+
+    public sealed class DockerApi : IDockerApi
     {
         private const string UserAgent = "Alembic";
 
         private static readonly TimeSpan InfiniteTimeout = TimeSpan.FromMilliseconds(Timeout.Infinite);
+        private static readonly Version ApiVersion = new Version("1.40");
 
         public delegate void ApiResponseErrorHandlingDelegate(HttpStatusCode statusCode, string responseBody);
 
         public readonly IEnumerable<ApiResponseErrorHandlingDelegate> NoErrorHandlers = Enumerable.Empty<ApiResponseErrorHandlingDelegate>();
 
-        private readonly HttpClient _client;
-        private readonly Uri _endpointBaseUri;
-        private readonly Version _requestedApiVersion;
+        private readonly IDockerClientFactory _factory;
         private readonly DockerClientConfiguration _configuration;
-        private readonly TimeSpan _defaultTimeout;
 
-        public DockerClient(DockerClientConfiguration configuration, Version requestedApiVersion)
+        public DockerApi(DockerClientConfiguration configuration, IDockerClientFactory factory)
         {
             _configuration = configuration;
-            _requestedApiVersion = requestedApiVersion;
-
-            ManagedHandler handler;
-            var uri = _configuration.EndpointBaseUri;
-            switch (uri.Scheme.ToLowerInvariant())
-            {
-                case "npipe":
-                    if (_configuration.Credentials.IsTlsCredentials())
-                    {
-                        throw new Exception("TLS not supported over npipe");
-                    }
-
-                    var segments = uri.Segments;
-                    if (segments.Length != 3 || !segments[1].Equals("pipe/", StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new ArgumentException($"{_configuration.EndpointBaseUri} is not a valid npipe URI");
-                    }
-
-                    var serverName = uri.Host;
-                    if (string.Equals(serverName, "localhost", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // npipe schemes dont work with npipe://localhost/... and need npipe://./... so fix that for a client here.
-                        serverName = ".";
-                    }
-
-                    var pipeName = uri.Segments[2];
-
-                    uri = new UriBuilder("http", pipeName).Uri;
-                    handler = new ManagedHandler(async (host, port, cancellationToken) =>
-                    {
-                        int timeout = (int)this._configuration.NamedPipeConnectTimeout.TotalMilliseconds;
-                        var stream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
-                        var dockerStream = new DockerPipeStream(stream);
-
-                        await stream.ConnectAsync(timeout, cancellationToken);
-
-                        return dockerStream;
-                    });
-
-                    break;
-
-                case "unix":
-                    var pipeString = uri.LocalPath;
-                    handler = new ManagedHandler(async (string host, int port, CancellationToken cancellationToken) =>
-                    {
-                        var sock = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-                        await sock.ConnectAsync(new UnixDomainSocketEndPoint(pipeString));
-                        return sock;
-                    });
-                    uri = new UriBuilder("http", uri.Segments.Last()).Uri;
-                    break;
-
-                default:
-                    throw new Exception($"Unknown URL scheme {configuration.EndpointBaseUri.Scheme}");
-            }
-
-            _endpointBaseUri = uri;
-
-            _client = new HttpClient(_configuration.Credentials.GetHandler(handler), true);
-            _defaultTimeout = _configuration.DefaultTimeout;
-            _client.Timeout = InfiniteTimeout;
+            _factory = factory;
         }
 
         public async Task<(HttpStatusCode, string)> MakeRequestAsync(
@@ -154,17 +98,17 @@ namespace Alembic.Docker
                 }
             }
 
-            var request = PrepareRequest(method, path, queryString, headers);
+            var request = PrepareRequest(method, _factory.GetOrCreate().BaseAddress, path, queryString, headers);
 
-            return await _client.SendAsync(request, completionOption, cancellationToken).ConfigureAwait(false);
+            return await _factory.GetOrCreate().SendAsync(request, completionOption, cancellationToken).ConfigureAwait(false);
         }
 
-        internal HttpRequestMessage PrepareRequest(HttpMethod method, string path, string queryString, IDictionary<string, string> headers)
+        private static HttpRequestMessage PrepareRequest(HttpMethod method, Uri baseUri, string path, string queryString, IDictionary<string, string> headers)
         {
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentNullException(nameof(path));
 
-            var url = $"{_endpointBaseUri}v{_requestedApiVersion}/{path}";
+            var url = $"{baseUri}v{ApiVersion}/{path}";
 
             if (!string.IsNullOrWhiteSpace(queryString))
                 url = $"{url}?{queryString}";
@@ -186,7 +130,7 @@ namespace Alembic.Docker
             return request;
         }
 
-        private async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate> handlers)
+        private static async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate> handlers)
         {
             bool isErrorResponse = statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest;
 
@@ -211,9 +155,7 @@ namespace Alembic.Docker
 
             // No custom handler was fired. Default the response for generic success/failures.
             if (isErrorResponse)
-            {
                 throw new DockerApiException(statusCode, responseBody);
-            }
         }
 
         public void Dispose()

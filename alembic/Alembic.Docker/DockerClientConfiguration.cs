@@ -8,25 +8,12 @@ namespace Alembic.Docker
     {
         private const string Version = "1.40";
 
-        public Uri EndpointBaseUri { get; internal set; }
-
-        public Credentials Credentials { get; internal set; }
-
         public TimeSpan DefaultTimeout { get; internal set; } = TimeSpan.FromSeconds(100);
 
         public TimeSpan NamedPipeConnectTimeout { get; set; } = TimeSpan.FromMilliseconds(100);
 
-        public DockerClientConfiguration() : this(DockerApiUri())
+        public DockerClientConfiguration(TimeSpan defaultTimeout = default)
         {
-        }
-
-        public DockerClientConfiguration(Uri endpoint, Credentials credentials = null, TimeSpan defaultTimeout = default)
-        {
-            _ = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
-            Credentials = credentials ?? new AnonymousCredentials();
-
-            EndpointBaseUri = endpoint;
-
             if (defaultTimeout != TimeSpan.Zero)
             {
                 if (defaultTimeout < Timeout.InfiniteTimeSpan)
@@ -36,14 +23,8 @@ namespace Alembic.Docker
             }
         }
 
-        public DockerClient CreateClient()
-        {
-            return new DockerClient(this, new Version(Version));
-        }
-
         public void Dispose()
         {
-            Credentials.Dispose();
         }
 
         private static Uri DockerApiUri()

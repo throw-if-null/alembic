@@ -136,7 +136,6 @@ namespace Alembic.Docker
             if (string.IsNullOrEmpty(addressLine))
                 request.SetAddressLineProperty(pathAndQuery);
 
-            //ProxyMode proxyMode = DetermineProxyModeAndAddressLine(request);
             Socket socket;
             Stream transport;
 

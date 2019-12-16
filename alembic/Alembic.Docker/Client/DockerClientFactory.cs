@@ -1,0 +1,100 @@
+﻿using Alembic.Docker.Streaming;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.IO.Pipes;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Threading;
+
+namespace Alembic.Docker.Client
+{
+    public interface IDockerClientFactory
+    {
+        HttpClient GetOrCreate();
+    }
+
+    public class DockerClientFactory : IDockerClientFactory
+    {
+        private static readonly TimeSpan InfiniteTimeout = TimeSpan.FromMilliseconds(Timeout.Infinite);
+
+        private readonly Dictionary<Uri, HttpClient> _cache = new Dictionary<Uri, HttpClient>();
+        private readonly DockerClientFactoryOptions _options;
+
+        public DockerClientFactory(IOptions<DockerClientFactoryOptions> options)
+        {
+            _options = options.Value;
+        }
+
+        public HttpClient GetOrCreate()
+        {
+            var (handler, uri) = ResolveHandlerAndUri(_options.BaseUri);
+
+            if (_cache.ContainsKey(uri))
+                return _cache[uri];
+
+            _cache[uri] = new HttpClient(handler, true)
+            {
+                BaseAddress = uri,
+                Timeout = InfiniteTimeout
+            };
+
+            return _cache[uri];
+        }
+
+        private static (HttpMessageHandler handler, Uri uri) ResolveHandlerAndUri(Uri baseUrl)
+        {
+            ManagedHandler handler;
+            var uri = baseUrl;
+
+            switch (uri.Scheme.ToLowerInvariant())
+            {
+                case "npipe":
+                    var segments = uri.Segments;
+                    if (segments.Length != 3 || !segments[1].Equals("pipe/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new ArgumentException($"{baseUrl} is not a valid npipe URI");
+                    }
+
+                    var serverName = uri.Host;
+                    if (string.Equals(serverName, "localhost", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // npipe schemes dont work with npipe://localhost/... and need npipe://./... so fix that for a client here.
+                        serverName = ".";
+                    }
+
+                    var pipeName = uri.Segments[2];
+
+                    uri = new UriBuilder("http", pipeName).Uri;
+                    handler = new ManagedHandler(async (host, port, cancellationToken) =>
+                    {
+                        var stream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
+                        var dockerStream = new DockerPipeStream(stream);
+
+                        await stream.ConnectAsync(100, cancellationToken);
+
+                        return dockerStream;
+                    });
+
+                    break;
+
+                case "unix":
+                    var pipeString = uri.LocalPath;
+                    handler = new ManagedHandler(async (string host, int port, CancellationToken cancellationToken) =>
+                    {
+                        var sock = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+                        await sock.ConnectAsync(new UnixDomainSocketEndPoint(pipeString));
+                        return sock;
+                    });
+                    uri = new UriBuilder("http", uri.Segments.Last()).Uri;
+                    break;
+
+                default:
+                    throw new Exception($"Unknown URL scheme {uri.Scheme}");
+            }
+
+            return (handler, uri);
+        }
+    }
+}
