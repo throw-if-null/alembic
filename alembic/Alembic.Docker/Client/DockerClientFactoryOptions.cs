@@ -4,6 +4,6 @@ namespace Alembic.Docker.Client
 {
     public class DockerClientFactoryOptions
     {
-        public Uri BaseUri { get; set; }
+        public string BaseUri { get; set; } = ".";
     }
 }

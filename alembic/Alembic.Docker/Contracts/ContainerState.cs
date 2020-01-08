@@ -23,6 +23,9 @@ namespace Alembic.Docker.Contracts
         public bool Running { get; set; }
 
         public DateTime StartedAt { get; set; }
+
         public string Status { get; set; }
+
+        public ContainerHealth Health { get; set; }
     }
 }

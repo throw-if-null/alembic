@@ -1,4 +1,6 @@
-﻿namespace Alembic.Docker.Contracts
+﻿using System;
+
+namespace Alembic.Docker.Contracts
 {
     public class Container
     {

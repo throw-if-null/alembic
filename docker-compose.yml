@@ -22,15 +22,17 @@ services:
   mongo:
     <<: *base-service-template
     image: mongo:latest
-    container_name: mongo.ctn
+    deploy:
+      replicas: 2
+    #container_name: mongo.ctn
     command: >
       sh -c "mongod --bind_ip 0.0.0.0 --port 80"
     labels:
       - autoheal=true
     ports:
-      - "27017:80"
-    volumes:
-      - mongo_data:/data/db
+      - "80"
+    # volumes:
+      # - mongo_data:/data/db
     healthcheck:
       test: echo 'db.stats().ok' | mongo mongo:80 --quiet
       interval: 15s
@@ -51,31 +53,31 @@ services:
     volumes:
       - mssql_data:/var/opt/mssql/data
     healthcheck:
-      test: ./opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P Password1! -Q "SELECT 1" || exit 1
+      test: ./opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P Password1!5 -Q "SELECT 1" || exit 1
       interval: 2s
       timeout: 2s
       retries: 3
       start_period: 3s
 
-  alembic:
-    <<: *base-service-template
-    #image: alembic:latest
-    container_name: alembic
-    build:
-      context: ./src
-      dockerfile: Dockerfile
-    environment:
-      - AUTOHEAL_CONTAINER_LABEL=all
-    stdin_open: true
-    tty: true
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    healthcheck:
-      test: curl --max-time "5" --no-buffer -s --unix-socket "/var/run/docker.sock" --fail http://localhost/_ping || exit 1
-      interval: 2s
-      timeout: 2s
-      retries: 3
-      start_period: 1s
+  # alembic:
+    # <<: *base-service-template
+    # #image: alembic:latest
+    # container_name: alembic
+    # build:
+      # context: ./src
+      # dockerfile: Dockerfile
+    # environment:
+      # - AUTOHEAL_CONTAINER_LABEL=all
+    # stdin_open: true
+    # tty: true
+    # volumes:
+      # - /var/run/docker.sock:/var/run/docker.sock
+    # healthcheck:
+      # test: curl --max-time "5" --no-buffer -s --unix-socket "/var/run/docker.sock" --fail http://localhost/_ping || exit 1
+      # interval: 2s
+      # timeout: 2s
+      # retries: 3
+      # start_period: 1s
       
 networks:
   local:

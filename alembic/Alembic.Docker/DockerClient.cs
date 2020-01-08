@@ -1,4 +1,5 @@
 ﻿using Alembic.Docker.Client;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,15 +28,12 @@ namespace Alembic.Docker
 
         public delegate void ApiResponseErrorHandlingDelegate(HttpStatusCode statusCode, string responseBody);
 
-        public readonly IEnumerable<ApiResponseErrorHandlingDelegate> NoErrorHandlers = Enumerable.Empty<ApiResponseErrorHandlingDelegate>();
-
         private readonly IDockerClientFactory _factory;
-        private readonly DockerClientConfiguration _configuration;
-
-        public DockerApi(DockerClientConfiguration configuration, IDockerClientFactory factory)
+        private readonly ILogger _logger;
+        public DockerApi(IDockerClientFactory factory, ILogger<DockerApi> logger)
         {
-            _configuration = configuration;
             _factory = factory;
+            _logger = logger;
         }
 
         public async Task<(HttpStatusCode, string)> MakeRequestAsync(
@@ -89,13 +87,15 @@ namespace Alembic.Docker
             // code flow simple, we treat it as re-entering the same method with a different CancellationToken and no timeout.
             if (timeout != InfiniteTimeout)
             {
-                using (var timeoutTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
-                {
-                    timeoutTokenSource.CancelAfter(timeout);
+                using var timeoutTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-                    // We must await here because we need to dispose of the CTS only after the work has been completed.
-                    return await PrivateMakeRequestAsync(InfiniteTimeout, completionOption, method, path, queryString, headers, timeoutTokenSource.Token).ConfigureAwait(false);
-                }
+                timeoutTokenSource.CancelAfter(timeout);
+
+                // We must await here because we need to dispose of the CTS only after the work has been completed.
+                return
+                    await
+                        PrivateMakeRequestAsync(InfiniteTimeout, completionOption, method, path, queryString, headers, timeoutTokenSource.Token)
+                        .ConfigureAwait(false);
             }
 
             var request = PrepareRequest(method, _factory.GetOrCreate().BaseAddress, path, queryString, headers);
@@ -156,11 +156,6 @@ namespace Alembic.Docker
             // No custom handler was fired. Default the response for generic success/failures.
             if (isErrorResponse)
                 throw new DockerApiException(statusCode, responseBody);
-        }
-
-        public void Dispose()
-        {
-            _configuration.Dispose();
         }
     }
 }

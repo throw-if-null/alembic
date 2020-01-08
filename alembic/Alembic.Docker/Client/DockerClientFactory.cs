@@ -1,4 +1,5 @@
 ﻿using Alembic.Docker.Streaming;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.IO.Pipes;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Alembic.Docker.Client
@@ -21,10 +23,12 @@ namespace Alembic.Docker.Client
 
         private readonly Dictionary<Uri, HttpClient> _cache = new Dictionary<Uri, HttpClient>();
         private readonly DockerClientFactoryOptions _options;
+        private readonly ILogger _logger;
 
-        public DockerClientFactory(IOptions<DockerClientFactoryOptions> options)
+        public DockerClientFactory(IOptions<DockerClientFactoryOptions> options, ILogger<DockerClientFactory> logger)
         {
             _options = options.Value;
+            _logger = logger;
         }
 
         public HttpClient GetOrCreate()
@@ -33,6 +37,8 @@ namespace Alembic.Docker.Client
 
             if (_cache.ContainsKey(uri))
                 return _cache[uri];
+
+            _logger.LogDebug($"HttpClient created: {uri}");
 
             _cache[uri] = new HttpClient(handler, true)
             {
@@ -43,10 +49,10 @@ namespace Alembic.Docker.Client
             return _cache[uri];
         }
 
-        private static (HttpMessageHandler handler, Uri uri) ResolveHandlerAndUri(Uri baseUrl)
+        private static (HttpMessageHandler handler, Uri uri) ResolveHandlerAndUri(string baseUrl)
         {
             ManagedHandler handler;
-            var uri = baseUrl;
+            var uri = new Uri(baseUrl.Equals(".") ? DockerApiUri() : baseUrl);
 
             switch (uri.Scheme.ToLowerInvariant())
             {
@@ -88,6 +94,7 @@ namespace Alembic.Docker.Client
                         return sock;
                     });
                     uri = new UriBuilder("http", uri.Segments.Last()).Uri;
+
                     break;
 
                 default:
@@ -95,6 +102,21 @@ namespace Alembic.Docker.Client
             }
 
             return (handler, uri);
+        }
+
+        private static string DockerApiUri()
+        {
+            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+            if (isWindows)
+                return @"npipe://./pipe/docker_engine";
+
+            var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+            if (isLinux)
+                return @"unix:/var/run/docker.sock";
+
+            throw new Exception("Was unable to determine what OS this is running on, does not appear to be Windows or Linux!?");
         }
     }
 }

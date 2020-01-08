@@ -1,98 +1,61 @@
 ﻿using Alembic.Docker;
 using Alembic.Docker.Client;
+using Alembic.Docker.Infrastructure;
+using Alembic.Docker.Reporting;
 using Alembic.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Threading;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Extensions.Logging;
+using Serilog.Sinks.Slack.Core;
 using System.Threading.Tasks;
 
 namespace Alembic
 {
-    class Program
+    internal class Program
     {
-        private static readonly IReadOnlyCollection<string> Container_Events = new[] {
-            "attach",
-            "commit",
-            "copy",
-            "create",
-            "destroy",
-            "detach",
-            "die",
-            "exec_create",
-            "exec_detach",
-            "exec_start",
-            "exec_die",
-            "export",
-            "health_status",
-            "kill",
-            "oom",
-            "pause",
-            "rename",
-            "resize",
-            "restart",
-            "start",
-            "stop",
-            "top",
-            "unpause",
-            "update"
-        };
-
-        static async Task Main(string[] args)
+        internal static Task Main(string[] args)
         {
-            var cancellationToken = CancellationToken.None;
+            //var log = new LoggerConfiguration()
+            //    .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose)
+            //    .WriteTo.Slack("https://hooks.slack.com/services/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")
+            //    .CreateLogger();
 
-            var services = new ServiceCollection();
-
-            services.AddSingleton<DockerApi>();
-            services.AddTransient<IDockerMonitor, DockerMonitor>();
-            services.AddSingleton<IDockerClientFactory, DockerClientFactory>();
-
-            var provider = services.BuildServiceProvider();
-
-            DockerApi client = new DockerApi(
-                new DockerClientConfiguration(),
-                new DockerClientFactory(Options.Create(new DockerClientFactoryOptions { BaseUri = DockerApiUri() })));
-
-            var monitor = new DockerMonitor(client);
-
-            var ping = await monitor.Ping(cancellationToken);
-            Console.WriteLine($"Ping: {ping}");
-
-            var containers = await monitor.GetContainers(cancellationToken);
-
-            foreach (var container in containers)
+            var slackMessage = new SlackMessage
             {
-                Console.WriteLine($"ContainerId: {container.Id} Status: {container.Status}");
+                Text = "Alembic event",
+                Blocks = new[]
+                    {
+                        new Block
+                        {
+                            Type = "section",
+                            Text = new BlockText { Type = "mrkdwn", Text = "*Container ID* d38a89ab7ccfe4230ba22e9191720e20d97b92a058e642f0d79e4eb507089007" }
+                        }
+                    }
+            };
 
-                try
-                {
-                    _ = await monitor.InspectContainer(container.Id, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
-            }
-
-            await monitor.MonitorHealthStatus(cancellationToken);
+            return CreateHostBuilder(args).Build().RunAsync();
         }
 
-        private static Uri DockerApiUri()
-        {
-            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices((context, services) =>
+                {
+                    services.Configure<DockerClientFactoryOptions>(context.Configuration.GetSection("DockerClientFactoryOptions"));
+                    services.Configure<RetryProviderOptions>(context.Configuration.GetSection("RetryProviderOptions"));
+                    services.Configure<WebHookReporterOptions>(context.Configuration.GetSection("WebHookReporterOptions"));
 
-            if (isWindows)
-                return new Uri("npipe://./pipe/docker_engine");
+                    services.AddLogging(x => x.AddConsole());
 
-            var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+                    services.AddSingleton<IReporter, WebHookReporter>();
+                    services.AddHttpClient();
+                    services.AddSingleton<IRetryProvider, RetryProvider>();
+                    services.AddSingleton<IDockerClientFactory, DockerClientFactory>();
+                    services.AddSingleton<IDockerApi, DockerApi>();
+                    services.AddTransient<IDockerMonitor, DockerMonitor>();
 
-            if (isLinux)
-                return new Uri("unix:/var/run/docker.sock");
-
-            throw new Exception("Was unable to determine what OS this is running on, does not appear to be Windows or Linux!?");
-        }
+                    services.AddHostedService<AlembicHost>();
+                });
     }
 }

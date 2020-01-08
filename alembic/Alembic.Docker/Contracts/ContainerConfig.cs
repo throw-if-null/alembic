@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Alembic.Docker.Contracts
 {
@@ -10,6 +11,6 @@ namespace Alembic.Docker.Contracts
 
         public string Image { get; set; }
 
-        public ContainerLabels Labels { get; set; }
+        public Dictionary<string, string> Labels { get; set; }
     }
 }
