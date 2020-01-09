@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -29,11 +28,10 @@ namespace Alembic.Docker
         public delegate void ApiResponseErrorHandlingDelegate(HttpStatusCode statusCode, string responseBody);
 
         private readonly IDockerClientFactory _factory;
-        private readonly ILogger _logger;
-        public DockerApi(IDockerClientFactory factory, ILogger<DockerApi> logger)
+
+        public DockerApi(IDockerClientFactory factory)
         {
             _factory = factory;
-            _logger = logger;
         }
 
         public async Task<(HttpStatusCode, string)> MakeRequestAsync(
@@ -100,7 +98,9 @@ namespace Alembic.Docker
 
             var request = PrepareRequest(method, _factory.GetOrCreate().BaseAddress, path, queryString, headers);
 
-            return await _factory.GetOrCreate().SendAsync(request, completionOption, cancellationToken).ConfigureAwait(false);
+            var response = await _factory.GetOrCreate().SendAsync(request, completionOption, cancellationToken).ConfigureAwait(false);
+
+            return response;
         }
 
         private static HttpRequestMessage PrepareRequest(HttpMethod method, Uri baseUri, string path, string queryString, IDictionary<string, string> headers)
@@ -119,7 +119,7 @@ namespace Alembic.Docker
 
             request.Headers.Add("User-Agent", UserAgent);
 
-            if(headers == null)
+            if (headers == null)
                 return request;
 
             foreach (var header in headers)

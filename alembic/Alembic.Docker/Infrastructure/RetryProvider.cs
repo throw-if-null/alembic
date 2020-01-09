@@ -8,8 +8,8 @@ namespace Alembic.Docker.Infrastructure
 {
     public interface IRetryProvider
     {
-        Task RetryOn<TException>(Func<TException, bool> exceptionPredicate, Func<Task> execute) where TException : Exception;
-        Task RetryOn<TException, TResult>(Func<TException, bool> exceptionPredicate, Func<Task<TResult>> execute) where TException : Exception;
+        //Task RetryOn<TException>(Func<TException, bool> exceptionPredicate, Func<Task> execute) where TException : Exception;
+        //Task RetryOn<TException, TResult>(Func<TException, bool> exceptionPredicate, Func<Task<TResult>> execute) where TException : Exception;
 
         Task RetryOn<TException, TResult>(Func<TException, bool> exceptionPredicate, Func<TResult, bool> resultPredicate, Func<Task<TResult>> execute) where TException : Exception;
     }
@@ -25,30 +25,30 @@ namespace Alembic.Docker.Infrastructure
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task RetryOn<TException>(Func<TException, bool> exceptionPredicate, Func<Task> execute)
-            where TException : Exception
-        {
-            return
-                Policy
-                    .Handle(exceptionPredicate)
-                    .WaitAndRetryAsync(
-                        _options.Delays.Count,
-                        i =>
-                        {
-                            _logger.LogDebug("Retry attempt: {0}", i);
+        //public Task RetryOn<TException>(Func<TException, bool> exceptionPredicate, Func<Task> execute)
+        //    where TException : Exception
+        //{
+        //    return
+        //        Policy
+        //            .Handle(exceptionPredicate)
+        //            .WaitAndRetryAsync(
+        //                _options.Delays.Count,
+        //                i =>
+        //                {
+        //                    _logger.LogDebug("Retry attempt: {0}", i);
 
-                            return TimeSpan.FromMilliseconds(_options.Delays[i - 1] + GetJitter());
-                        })
-                    .ExecuteAsync(execute);
-        }
+        //                    return TimeSpan.FromMilliseconds(_options.Delays[i - 1] + GetJitter());
+        //                })
+        //            .ExecuteAsync(execute);
+        //}
 
-        public Task RetryOn<TException, TResult>(
-            Func<TException, bool> exceptionPredicate,
-            Func<Task<TResult>> execute)
-            where TException : Exception
-        {
-            return RetryOn(exceptionPredicate, _ => false, execute);
-        }
+        //public Task RetryOn<TException, TResult>(
+        //    Func<TException, bool> exceptionPredicate,
+        //    Func<Task<TResult>> execute)
+        //    where TException : Exception
+        //{
+        //    return RetryOn(exceptionPredicate, _ => false, execute);
+        //}
 
         public Task RetryOn<TException, TResult>(
             Func<TException, bool> exceptionPredicate,

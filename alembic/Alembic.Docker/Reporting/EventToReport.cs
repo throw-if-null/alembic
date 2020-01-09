@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Alembic.Docker.Reporting
+﻿namespace Alembic.Docker.Reporting
 {
     public class EventToReport
     {

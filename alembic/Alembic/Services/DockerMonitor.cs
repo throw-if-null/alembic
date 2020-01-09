@@ -2,6 +2,7 @@
 using Alembic.Docker.Contracts;
 using Alembic.Docker.Reporting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -39,12 +40,14 @@ namespace Alembic.Services
 
         private ConcurrentDictionary<string, int> _containerRetries = new ConcurrentDictionary<string, int>();
 
+        private readonly DockerMonitorOptions _options;
         private readonly IDockerApi _client;
         private readonly IReporter _reporter;
         private readonly ILogger _logger;
 
-        public DockerMonitor(IDockerApi client, IReporter reporter, ILogger<DockerMonitor> logger)
+        public DockerMonitor(IOptions<DockerMonitorOptions> options, IDockerApi client, IReporter reporter, ILogger<DockerMonitor> logger)
         {
+            _options = options.Value;
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _reporter = reporter ?? throw new ArgumentNullException(nameof(client));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -78,14 +81,14 @@ namespace Alembic.Services
         {
             (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Get, $"containers/{id}/json", null, null, Timeout, cancellation);
 
-            if(status == HttpStatusCode.OK)
+            if (status == HttpStatusCode.OK)
             {
                 var container = JsonConvert.DeserializeObject<Container>(body);
 
                 return container;
             }
 
-            if(status == HttpStatusCode.NotFound)
+            if (status == HttpStatusCode.NotFound)
                 return null;
 
             return null;
@@ -101,7 +104,7 @@ namespace Alembic.Services
             (HttpStatusCode status, string _) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/kill ", null, null, Timeout, cancellation);
 
             if (status == HttpStatusCode.NoContent)
-                await _reporter.Send(new { text = $"Container: {id} killed." }, cancellation);
+                await _reporter.Send(CreateSlackMessage("KILL", id, "to do", DateTime.UtcNow), cancellation);
 
             return status;
         }
@@ -121,22 +124,21 @@ namespace Alembic.Services
 
                     if (containerHealth.Status.Split(":")[1].Trim() == "unhealthy")
                     {
-                        if (_containerRetries.TryGetValue(containerHealth.Id, out var retryCount))
+                        if (_containerRetries.TryGetValue(containerHealth.Id, out var _))
                             _containerRetries[containerHealth.Id] = _containerRetries[containerHealth.Id] + 1;
                         else
                             _containerRetries[containerHealth.Id] = 1;
 
-                        if (_containerRetries[containerHealth.Id] >= 3)
+                        if (_containerRetries[containerHealth.Id] > _options.RestartCount)
                         {
-                            var killStatus = await KillContainer(containerHealth.Id, cancellation);
+                            if (!_options.KillUnhealthyContainer)
+                                continue;
 
-                            _logger.LogWarning($"Kill operation preformed on container: {containerHealth.Id} successfully: {killStatus == HttpStatusCode.NoContent}. Note: Containers that stay unhealty after 3 restarts get killed");
-
+                            await KillContainer(containerHealth.Id, cancellation);
                             continue;
                         }
 
-                        var status = await RestartContainer(containerHealth.Id, $"Container: {containerHealth.Id} restarted. Count: {_containerRetries[containerHealth.Id]}", cancellation);
-                        _logger.LogInformation($"Container: {containerHealth.Id} restart completed successfully: {status == HttpStatusCode.NoContent}");
+                        await RestartContainer(containerHealth.Id, $"Container: {containerHealth.Id} restarted. Count: {_containerRetries[containerHealth.Id]}", cancellation);
                     }
                 }
             }
@@ -147,9 +149,38 @@ namespace Alembic.Services
             (HttpStatusCode status, _) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/restart ", null, null, Timeout, cancellation);
 
             if (status == HttpStatusCode.NoContent)
-                await _reporter.Send(new { text = reportMessage }, cancellation);
+                await _reporter.Send(CreateSlackMessage("RESTART", id, "to do", DateTime.UtcNow), cancellation);
 
             return status;
+        }
+
+        private object CreateSlackMessage(string eventName, string containerId, string service, DateTime date)
+        {
+            return
+                new
+                {
+                    blocks = new object[]
+                            {
+                                new
+                                {
+                                    type = "section",
+                                    text = new { type = "mrkdwn", text = $"*Event: {eventName}*"}
+                                },
+                                new
+                                {
+                                    type = "divider"
+                                },
+                                new
+                                {
+                                    type = "section",
+                                    text = new
+                                    {
+                                        type = "mrkdwn",
+                                        text = $">Container: {containerId.Substring(0, 8)}\n>Service: {service}\n>Time: {date}"
+                                    }
+                                }
+                            }
+                };
         }
 
         private static readonly Action<object?> Callback = delegate (object? stream)

@@ -6,9 +6,6 @@ using Alembic.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Serilog;
-using Serilog.Extensions.Logging;
-using Serilog.Sinks.Slack.Core;
 using System.Threading.Tasks;
 
 namespace Alembic
@@ -17,11 +14,6 @@ namespace Alembic
     {
         internal static Task Main(string[] args)
         {
-            //var log = new LoggerConfiguration()
-            //    .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose)
-            //    .WriteTo.Slack("https://hooks.slack.com/services/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")
-            //    .CreateLogger();
-
             var slackMessage = new SlackMessage
             {
                 Text = "Alembic event",
