@@ -103,8 +103,12 @@ namespace Alembic.Services
         {
             (HttpStatusCode status, string _) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/kill ", null, null, Timeout, cancellation);
 
+            var container = await InspectContainer(id, cancellation);
+
             if (status == HttpStatusCode.NoContent)
-                await _reporter.Send(CreateSlackMessage("KILL", id, "to do", DateTime.UtcNow), cancellation);
+                await _reporter.Send(CreateSlackMessage("Kill", "danger", "Container killed successfully.", DateTime.UtcNow, container), cancellation);
+            else
+                await _reporter.Send(CreateSlackMessage("Kill", "danger", "Failed to kill container. Response status: {status}", DateTime.UtcNow, container), cancellation);
 
             return status;
         }
@@ -138,7 +142,7 @@ namespace Alembic.Services
                             continue;
                         }
 
-                        await RestartContainer(containerHealth.Id, $"Container: {containerHealth.Id} restarted. Count: {_containerRetries[containerHealth.Id]}", cancellation);
+                        await RestartContainer(containerHealth.Id, $"Container restart number: {_containerRetries[containerHealth.Id]}", cancellation);
                     }
                 }
             }
@@ -147,40 +151,60 @@ namespace Alembic.Services
         private async Task<HttpStatusCode> RestartContainer(string id, string reportMessage, CancellationToken cancellation)
         {
             (HttpStatusCode status, _) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/restart ", null, null, Timeout, cancellation);
+            var container = await InspectContainer(id, cancellation);
 
             if (status == HttpStatusCode.NoContent)
-                await _reporter.Send(CreateSlackMessage("RESTART", id, "to do", DateTime.UtcNow), cancellation);
+                await _reporter.Send(CreateSlackMessage("Restart", "warning", reportMessage, DateTime.UtcNow, container), cancellation);
+            else
+                await _reporter.Send(CreateSlackMessage("Restart", "warning", $"Failed to restart container. Response status: {status}", DateTime.UtcNow, container), cancellation);
 
             return status;
         }
 
-        private object CreateSlackMessage(string eventName, string containerId, string service, DateTime date)
+        private object CreateSlackMessage(string eventName, string color, string message, DateTime date, Container container)
         {
-            return
+            var fields = new List<object>
+            {
+                new { title = "Container id", value = $"`{container.Id}`"},
+                new { title = "Container number", value = $"`{container.ExtractContainerNumberLabelValue()}`"},
+                new { title = "Service", value = $"`{container.ExtractServiceLabelValue()}`"},
+                new { title = "Image", value = $"`{container.Image}`" },
+                new { title = "Status", value = $"`{container.State.Status}`"},
+                new { title = "Exit code", value = $"`{container.State.ExitCode}`" },
+                new { title = "Logs"},
+            };
+
+            foreach (var log in container.State.Health.Logs)
+            {
+                fields.Add(new { value = $"`{JsonConvert.SerializeObject(log)}`\n" });
+            }
+
+            var content =
                 new
                 {
-                    blocks = new object[]
-                            {
-                                new
-                                {
-                                    type = "section",
-                                    text = new { type = "mrkdwn", text = $"*Event: {eventName}*"}
-                                },
-                                new
-                                {
-                                    type = "divider"
-                                },
-                                new
-                                {
-                                    type = "section",
-                                    text = new
-                                    {
-                                        type = "mrkdwn",
-                                        text = $">Container: {containerId.Substring(0, 8)}\n>Service: {service}\n>Time: {date}"
-                                    }
-                                }
-                            }
+                    attachments = new object[]
+                    {
+                        new
+                        {
+                            mrkdwn_in = new[] { "text" },
+                            color = color,
+                            pretext = $"*Event:* {eventName}",
+                            text = $"_{message}_",
+                            fields = fields,
+                            footer = "Date:",
+                            ts = UtcNowToUnixTimestamp(date)
+                        },
+                    }
                 };
+
+            return content;
+        }
+
+        private static double UtcNowToUnixTimestamp(DateTime date)
+        {
+            TimeSpan difference = date.ToUniversalTime() - DateTime.UnixEpoch;
+
+            return Math.Floor(difference.TotalSeconds);
         }
 
         private static readonly Action<object?> Callback = delegate (object? stream)

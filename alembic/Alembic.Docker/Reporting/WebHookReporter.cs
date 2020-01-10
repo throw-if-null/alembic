@@ -30,7 +30,7 @@ namespace Alembic.Docker.Reporting
         {
             _options = options.Value;
             _client = factory.CreateClient();
-            _client.BaseAddress = new Uri(_options.Url);
+            _client.BaseAddress = new Uri("https://hooks.slack.com/");
             _retryProvider = retryProvider;
             _logger = logger;
         }
@@ -70,7 +70,7 @@ namespace Alembic.Docker.Reporting
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri(_options.Url),
+                RequestUri = new Uri(_client.BaseAddress + _options.Url),
                 Content = new StringContent(payload)
             };
 
