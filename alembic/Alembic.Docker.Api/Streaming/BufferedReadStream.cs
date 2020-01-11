@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Streaming
+namespace Alembic.Docker.Api.Streaming
 {
     internal class BufferedReadStream : WriteClosableStream
     {
@@ -162,7 +162,7 @@ namespace Alembic.Docker.Streaming
                 {
                     if (validBuffer)
                     {
-                        _bufferCount = await _inner.ReadAsync(_buffer, _bufferOffset, _buffer.Length, cancel).ConfigureAwait(false);
+                        _bufferCount = await _inner.ReadAsync(_buffer, _bufferOffset, _buffer.Length, cancel);
                     }
                 }
                 finally
@@ -190,7 +190,7 @@ namespace Alembic.Docker.Streaming
             {
                 if (_bufferCount == 0)
                 {
-                    await EnsureBufferedAsync(cancel).ConfigureAwait(false);
+                    await EnsureBufferedAsync(cancel);
                 }
 
                 char ch = (char)_buffer[_bufferOffset]; // TODO: Encoding enforcement

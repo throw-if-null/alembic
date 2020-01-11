@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Streaming
+namespace Alembic.Docker.Api.Streaming
 {
     internal class ChunkedWriteStream : Stream
     {
@@ -75,9 +75,9 @@ namespace Alembic.Docker.Streaming
             }
 
             var chunkSize = Encoding.ASCII.GetBytes(count.ToString("x") + "\r\n");
-            await _innerStream.WriteAsync(chunkSize, 0, chunkSize.Length, cancellationToken).ConfigureAwait(false);
-            await _innerStream.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-            await _innerStream.WriteAsync(chunkSize, chunkSize.Length - 2, 2, cancellationToken).ConfigureAwait(false);
+            await _innerStream.WriteAsync(chunkSize, 0, chunkSize.Length, cancellationToken);
+            await _innerStream.WriteAsync(buffer, offset, count, cancellationToken);
+            await _innerStream.WriteAsync(chunkSize, chunkSize.Length - 2, 2, cancellationToken);
         }
 
         public Task EndContentAsync(CancellationToken cancellationToken)

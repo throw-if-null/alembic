@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Streaming
+namespace Alembic.Docker.Api.Streaming
 {
     internal class ContentLengthReadStream : Stream
     {

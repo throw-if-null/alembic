@@ -1,4 +1,4 @@
-﻿using Alembic.Docker.Infrastructure;
+﻿using Alembic.Common.Resiliency;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -9,7 +9,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Reporting
+namespace Alembic.Reporting.Slack
 {
     public class WebHookReporter : IReporter
     {

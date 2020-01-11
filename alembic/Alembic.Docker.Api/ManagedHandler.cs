@@ -1,4 +1,4 @@
-﻿using Alembic.Docker.Streaming;
+﻿using Alembic.Docker.Api.Streaming;
 using System;
 using System.Globalization;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker
+namespace Alembic.Docker.Api
 {
     public class ManagedHandler : HttpMessageHandler
     {
@@ -143,13 +143,13 @@ namespace Alembic.Docker
             {
                 if (_socketOpener != null)
                 {
-                    socket = await _socketOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken).ConfigureAwait(false);
+                    socket = await _socketOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken);
                     transport = new NetworkStream(socket, true);
                 }
                 else
                 {
                     socket = null;
-                    transport = await _streamOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken).ConfigureAwait(false);
+                    transport = await _streamOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken);
                 }
             }
             catch (SocketException sox)
@@ -244,7 +244,7 @@ namespace Alembic.Docker
 
         private static async Task<Socket> TCPSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
         {
-            var addresses = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);
+            var addresses = await Dns.GetHostAddressesAsync(host);
             if (addresses.Length == 0)
             {
                 throw new Exception($"could not resolve address for {host}");
@@ -257,7 +257,7 @@ namespace Alembic.Docker
                 var s = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 try
                 {
-                    await s.ConnectAsync(address, port).ConfigureAwait(false);
+                    await s.ConnectAsync(address, port);
 
                     connectedSocket = s;
                     break;

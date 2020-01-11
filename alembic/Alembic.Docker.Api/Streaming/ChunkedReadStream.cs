@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Streaming
+namespace Alembic.Docker.Api.Streaming
 {
     internal class ChunkedReadStream : Stream
     {
@@ -96,7 +96,7 @@ namespace Alembic.Docker.Streaming
 
             if (_chunkBytesRemaining == 0)
             {
-                string headerLine = await _inner.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+                string headerLine = await _inner.ReadLineAsync(cancellationToken);
                 if (!long.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
                 {
                     throw new IOException("Invalid chunk header: " + headerLine);
@@ -107,7 +107,7 @@ namespace Alembic.Docker.Streaming
             if (_chunkBytesRemaining > 0)
             {
                 int toRead = (int)Math.Min(count, _chunkBytesRemaining);
-                read = await _inner.ReadAsync(buffer, offset, toRead, cancellationToken).ConfigureAwait(false);
+                read = await _inner.ReadAsync(buffer, offset, toRead, cancellationToken);
                 if (read == 0)
                 {
                     throw new EndOfStreamException();
@@ -119,7 +119,7 @@ namespace Alembic.Docker.Streaming
             if (_chunkBytesRemaining == 0)
             {
                 // End of chunk, read the terminator CRLF
-                var trailer = await _inner.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+                var trailer = await _inner.ReadLineAsync(cancellationToken);
                 if (trailer.Length > 0)
                 {
                     throw new IOException("Invalid chunk trailer");

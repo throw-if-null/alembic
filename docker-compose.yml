@@ -34,7 +34,7 @@ services:
     # volumes:
       # - mongo_data:/data/db
     healthcheck:
-      test: echo 'db.stats().ok' | mongo mongo:80 --quiet
+      test: echo 'db.stats().ok' | mongo mongo:8023 --quiet
       interval: 15s
       timeout: 3s
       retries: 3

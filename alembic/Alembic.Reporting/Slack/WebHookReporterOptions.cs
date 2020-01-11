@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace Alembic.Docker.Reporting
+namespace Alembic.Reporting.Slack
 {
     public class WebHookReporterOptions
     {

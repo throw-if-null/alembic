@@ -1,4 +1,4 @@
-﻿using Alembic.Docker.Streaming;
+﻿using Alembic.Docker.Api.Streaming;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -10,7 +10,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Alembic.Docker.Client
+namespace Alembic.Docker.Api.Client
 {
     public interface IDockerClientFactory
     {

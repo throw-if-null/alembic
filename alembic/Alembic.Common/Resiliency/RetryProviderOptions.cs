@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace Alembic.Docker.Infrastructure
+namespace Alembic.Common.Resiliency
 {
     public class RetryProviderOptions
     {

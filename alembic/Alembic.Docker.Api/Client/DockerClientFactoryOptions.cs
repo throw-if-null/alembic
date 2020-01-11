@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Alembic.Docker.Client
+﻿namespace Alembic.Docker.Api.Client
 {
     public class DockerClientFactoryOptions
     {

@@ -1,4 +1,4 @@
-﻿using Alembic.Docker.Streaming;
+﻿using Alembic.Docker.Api.Streaming;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker
+namespace Alembic.Docker.Api
 {
     internal class HttpConnection : IDisposable
     {
