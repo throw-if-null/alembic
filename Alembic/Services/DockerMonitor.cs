@@ -29,6 +29,8 @@ namespace Alembic.Services
 
         public async Task Run(CancellationToken cancellation)
         {
+            await Ping(cancellation);
+
             var containers = await _api.GetContainers(cancellation);
 
             foreach (var container in containers)
@@ -65,6 +67,13 @@ namespace Alembic.Services
             }
 
             await _api.MonitorHealthStatus(cancellation, _options.RestartCount, _options.KillUnhealthyContainer);
+        }
+
+        private async Task Ping(CancellationToken cancellation)
+        {
+            var ping = await _api.Ping(cancellation);
+
+            _logger.LogDebug($"Docker enging ping: {ping}");
         }
     }
 }

@@ -1,5 +1,7 @@
 version: '3.7'
 
+services:
+
 # Templates:
 x-base: &base-service-template
   init: true
@@ -31,8 +33,6 @@ services:
       - autoheal=true
     ports:
       - "80"
-    # volumes:
-      # - mongo_data:/data/db
     healthcheck:
       test: echo 'db.stats().ok' | mongo mongo:8023 --quiet
       interval: 15s
@@ -50,8 +50,6 @@ services:
       - autoheal=true
     ports:
       - "1433:1433"
-    volumes:
-      - mssql_data:/var/opt/mssql/data
     healthcheck:
       test: ./opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P Password1!5 -Q "SELECT 1" || exit 1
       interval: 2s
@@ -59,31 +57,23 @@ services:
       retries: 3
       start_period: 3s
 
-  # alembic:
-    # <<: *base-service-template
-    # #image: alembic:latest
-    # container_name: alembic
-    # build:
-      # context: ./src
-      # dockerfile: Dockerfile
-    # environment:
-      # - AUTOHEAL_CONTAINER_LABEL=all
-    # stdin_open: true
-    # tty: true
-    # volumes:
-      # - /var/run/docker.sock:/var/run/docker.sock
-    # healthcheck:
-      # test: curl --max-time "5" --no-buffer -s --unix-socket "/var/run/docker.sock" --fail http://localhost/_ping || exit 1
-      # interval: 2s
-      # timeout: 2s
-      # retries: 3
-      # start_period: 1s
-      
+  alembic:
+    image: ${DOCKER_REGISTRY-}alembic
+    build:
+      context: .
+      dockerfile: Alembic/Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: curl --max-time "5" --no-buffer -s --unix-socket "/var/run/docker.sock" --fail http://localhost/_ping || exit 1
+      interval: 2s
+      timeout: 2s
+      retries: 3
+      start_period: 1s
+
 networks:
   local:
     name: local
 
 volumes:
   portainer_data:
-  mongo_data:
-  mssql_data:
