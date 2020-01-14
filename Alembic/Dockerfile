@@ -24,4 +24,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+ADD ./Alembic/VERSION .
+
 ENTRYPOINT ["dotnet", "Alembic.dll"]
