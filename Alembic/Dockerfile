@@ -1,4 +1,5 @@
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1-buster-slim AS base
+ADD ./Alembic/VERSION .
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
@@ -23,7 +24,5 @@ RUN dotnet publish "Alembic.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-
-ADD ./Alembic/VERSION .
 
 ENTRYPOINT ["dotnet", "Alembic.dll"]
