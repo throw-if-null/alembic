@@ -1,4 +1,7 @@
 # Alembic:alembic:
+[![Actions Status](https://github.com/MirzaMerdovic/alembic/workflows/CI/badge.svg)](https://github.com/MirzaMerdovic/alembic/actions)
+
+# What is it?
 Alembic :alembic: is a simple .net core app that monitors the health status of your Docker containers.
 
 # Motivation
