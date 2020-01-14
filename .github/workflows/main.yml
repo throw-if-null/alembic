@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - name: Docker Semver
-      uses: MirzaMerdovic/docker-semver-github-action@1.3.2
+      uses: mirzamerdovic/docker-semver-github-action@master
       with:
         name: mirzamerdovic/alembic
         username: ${{ secrets.DOCKER_USERNAME }}
