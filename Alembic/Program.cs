@@ -2,7 +2,6 @@
 using Alembic.Docker.Api;
 using Alembic.Docker.Api.Client;
 using Alembic.Docker.Services;
-using Alembic.Reporting;
 using Alembic.Reporting.Slack;
 using Alembic.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +25,7 @@ namespace Alembic
                     services.Configure<DockerClientFactoryOptions>(context.Configuration.GetSection("DockerClientFactoryOptions"));
                     services.Configure<RetryProviderOptions>(context.Configuration.GetSection("RetryProviderOptions"));
                     services.Configure<WebHookReporterOptions>(context.Configuration.GetSection("WebHookReporterOptions"));
+                    services.Configure<DockerMonitorOptions>(context.Configuration.GetSection("DockerMonitorOptions"));
 
                     services.AddLogging(x => x.AddConsole());
 

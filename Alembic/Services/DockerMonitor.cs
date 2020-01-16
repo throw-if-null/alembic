@@ -54,11 +54,6 @@ namespace Alembic.Services
                         continue;
 
                     var status = await _api.RestartContainer(ctn.Id, cancellation);
-
-                    if (status == HttpStatusCode.NoContent)
-                        _logger.LogInformation($"Container: {ctn.Id} restarted successfully.");
-                    else
-                        _logger.LogWarning($"Container: {ctn.Id} could not be restarted. Received status: {status}");
                 }
                 catch (Exception ex)
                 {

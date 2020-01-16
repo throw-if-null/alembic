@@ -8,7 +8,7 @@ namespace Alembic.Common.Resiliency
 {
     public interface IRetryProvider
     {
-        Task RetryOn<TException, TResult>(Func<TException, bool> exceptionPredicate, Func<TResult, bool> resultPredicate, Func<Task<TResult>> execute) where TException : Exception;
+        Task<TResult> RetryOn<TException, TResult>(Func<TException, bool> exceptionPredicate, Func<TResult, bool> resultPredicate, Func<Task<TResult>> execute) where TException : Exception;
     }
 
     public class RetryProvider : IRetryProvider
@@ -22,7 +22,7 @@ namespace Alembic.Common.Resiliency
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task RetryOn<TException, TResult>(
+        public Task<TResult> RetryOn<TException, TResult>(
             Func<TException, bool> exceptionPredicate,
             Func<TResult, bool> resultPredicate,
             Func<Task<TResult>> execute)
@@ -36,7 +36,7 @@ namespace Alembic.Common.Resiliency
                         _options.Delays.Count,
                         i =>
                         {
-                            _logger.LogDebug("Retry attempt: {0}", i);
+                            _logger.LogInformation("Retry attempt: {0}", i);
 
                             return TimeSpan.FromMilliseconds(_options.Delays[i - 1] + GetJitter());
                         })

@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Reporting
+namespace Alembic.Docker.Services
 {
     public interface IReporter
     {

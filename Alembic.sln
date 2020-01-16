@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic.Docker", "Alembic.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic.Docker.Api", "Alembic.Docker.Api\Alembic.Docker.Api.csproj", "{006C9C82-6617-4180-B4C0-07DF8628019E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alembic.Reporting", "Alembic.Reporting\Alembic.Reporting.csproj", "{3D974FC7-EBC3-4C57-843A-7E3C7EACD4B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic.Reporting", "Alembic.Reporting\Alembic.Reporting.csproj", "{3D974FC7-EBC3-4C57-843A-7E3C7EACD4B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alembic.Common", "Alembic.Common\Alembic.Common.csproj", "{46E4770F-EBA5-4FCA-8767-B186B9381756}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic.Common", "Alembic.Common\Alembic.Common.csproj", "{46E4770F-EBA5-4FCA-8767-B186B9381756}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

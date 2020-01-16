@@ -93,6 +93,8 @@ namespace Alembic.Docker.Api
 
                 if (!_containerRetries.TryRemove(id, out int _))
                     _logger.LogError($"Failed to remove container: {id} from the cache.");
+
+                _logger.LogInformation($"Container: {id} killed successfully.");
             }
             else
             {
@@ -132,7 +134,7 @@ namespace Alembic.Docker.Api
                             continue;
                         }
 
-                        await RestartContainer(containerHealth.Id, $"Container restart number: {_containerRetries[containerHealth.Id]}", cancellation);
+                        await RestartContainer(containerHealth.Id, $"Container restart number: {_containerRetries[containerHealth.Id]} of {restartCount}", cancellation);
                     }
                 }
             }
@@ -143,15 +145,16 @@ namespace Alembic.Docker.Api
             (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/restart ", null, null, Timeout, cancellation);
             var container = await InspectContainer(id, cancellation);
 
+            object slackMessage = status == HttpStatusCode.NoContent
+                ? CreateSlackMessage("Restart", "warning", reportMessage, DateTime.UtcNow, container)
+                : CreateSlackMessage("Restart", "warning", $"Failed to restart container. Response status: {status}", DateTime.UtcNow, container);
+
+            await _reporter.Send(slackMessage, cancellation);
+
             if (status == HttpStatusCode.NoContent)
-            {
-                await _reporter.Send(CreateSlackMessage("Restart", "warning", reportMessage, DateTime.UtcNow, container), cancellation);
-            }
+                _logger.LogInformation($"Contrainer: {id} restarted successfully.");
             else
-            {
-                await _reporter.Send(CreateSlackMessage("Restart", "warning", $"Failed to restart container. Response status: {status}", DateTime.UtcNow, container), cancellation);
                 _logger.LogWarning($"Failed to restart container: {id}. Response status: {status} body: {body}");
-            }
 
             return status;
         }

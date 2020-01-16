@@ -32,13 +32,13 @@ Add this configuration in your _docker-compose_ file:
 ```yml
 alembic:
     image: mirzamerdovic/alembic
-    environment:
-      -- RestartCount=3
-      -- KillUnhealthyContainer=true
-      -- ReportWebHook=http://mywebhook.com
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ${path_to_appsettings_override}:/app/appsettings.json:ro
 ```
+
+If you want to change the default values you can bind your own appsettings.json (you can name what ever you want) with override values,
+or if you only need to update the webhook URL then you can just add envioronment variable: `WebHookReporterOptions__Url=${my_url}` to your docker-compose
 
 ## Configuration
 There are a couple of things that can be configured when using :alembic:

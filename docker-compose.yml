@@ -26,7 +26,6 @@ services:
     image: mongo:latest
     deploy:
       replicas: 2
-    #container_name: mongo.ctn
     command: >
       sh -c "mongod --bind_ip 0.0.0.0 --port 80"
     labels:
@@ -35,7 +34,7 @@ services:
       - "80"
     healthcheck:
       test: echo 'db.stats().ok' | mongo mongo:8023 --quiet
-      interval: 15s
+      interval: 5s
       timeout: 3s
       retries: 3
 
@@ -58,12 +57,15 @@ services:
       start_period: 3s
 
   alembic:
-    image: ${DOCKER_REGISTRY-}alembic
+    image: mirzamerdovic/alembic:1.0.0
     build:
       context: .
       dockerfile: Alembic/Dockerfile
+    environment:
+      - WebHookReporterOptions__Url=services/uuuuu
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./settings.json:/app/appsettings.json:ro
     healthcheck:
       test: curl --max-time "5" --no-buffer -s --unix-socket "/var/run/docker.sock" --fail http://localhost/_ping || exit 1
       interval: 2s
