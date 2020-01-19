@@ -55,3 +55,4 @@ With _true_ meaning kill the container and with _false_ meaning leave the contai
 ## Known Issues
 
 The `appsettings.json` hot reaload is not working.
+Which means if you change a value in your bound override of `appesttings.json` it will not be applied until you restart the container. 
