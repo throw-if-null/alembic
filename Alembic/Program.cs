@@ -4,9 +4,11 @@ using Alembic.Docker.Api.Client;
 using Alembic.Docker.Services;
 using Alembic.Reporting.Slack;
 using Alembic.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Alembic
@@ -20,6 +22,11 @@ namespace Alembic
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, builder) =>
+                {
+                    builder.SetBasePath(Directory.GetCurrentDirectory());
+                    builder.AddJsonFile("appsettings.json", false, true);
+                })
                 .ConfigureServices((context, services) =>
                 {
                     services.Configure<DockerClientFactoryOptions>(context.Configuration.GetSection("DockerClientFactoryOptions"));

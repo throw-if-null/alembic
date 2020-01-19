@@ -25,9 +25,9 @@ namespace Alembic.Docker.Api.Client
         private readonly DockerClientFactoryOptions _options;
         private readonly ILogger _logger;
 
-        public DockerClientFactory(IOptions<DockerClientFactoryOptions> options, ILogger<DockerClientFactory> logger)
+        public DockerClientFactory(IOptionsMonitor<DockerClientFactoryOptions> options, ILogger<DockerClientFactory> logger)
         {
-            _options = options.Value;
+            _options = options.CurrentValue;
             _logger = logger;
         }
 

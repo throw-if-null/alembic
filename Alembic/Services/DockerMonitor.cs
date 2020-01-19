@@ -20,9 +20,9 @@ namespace Alembic.Services
         private readonly IDockerApi _api;
         private readonly ILogger _logger;
 
-        public DockerMonitor(IOptions<DockerMonitorOptions> options, IDockerApi api, ILogger<DockerMonitor> logger)
+        public DockerMonitor(IOptionsMonitor<DockerMonitorOptions> options, IDockerApi api, ILogger<DockerMonitor> logger)
         {
-            _options = options.Value;
+            _options = options.CurrentValue;
             _api = api ?? throw new ArgumentNullException(nameof(api));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

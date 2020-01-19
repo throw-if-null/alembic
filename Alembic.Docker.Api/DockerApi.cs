@@ -1,6 +1,5 @@
 ﻿using Alembic.Docker.Contracts;
 using Alembic.Docker.Services;
-using Alembic.Reporting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;

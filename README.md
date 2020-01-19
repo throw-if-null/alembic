@@ -38,7 +38,12 @@ alembic:
 ```
 
 If you want to change the default values you can bind your own appsettings.json (you can name what ever you want) with override values,
-or if you only need to update the webhook URL then you can just add envioronment variable: `WebHookReporterOptions__Url=${my_url}` to your docker-compose
+or if you only need to update the webhook URL then you can just add environment variable: `WebHookReporterOptions__Url=${my_url}` to your docker-compose
+
+```yml
+environment:
+  - WebHookReporterOptions__Url=services/{my_webhook}
+```
 
 ## Configuration
 There are a couple of things that can be configured when using :alembic:
@@ -46,3 +51,7 @@ There are a couple of things that can be configured when using :alembic:
 * Kill: Tells :alembic: whether it should kill containers that cannot auto-heal. In other words tells :alembic: what to do once the maximum number of retries have been reached. 
 With _true_ meaning kill the container and with _false_ meaning leave the container as it is.
 * ReportsWebHook: A webhook to where :alembic: will send the notifications about restart and/or kill actions
+
+## Known Issues
+
+The `appsettings.json` hot reaload is not working.

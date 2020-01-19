@@ -133,7 +133,7 @@ namespace Alembic.Docker.Api
         {
             bool isErrorResponse = statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest;
 
-            string responseBody = null;
+            string responseBody = string.Empty;
 
             if (isErrorResponse)
             {

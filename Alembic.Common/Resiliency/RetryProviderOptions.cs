@@ -4,6 +4,6 @@ namespace Alembic.Common.Resiliency
 {
     public class RetryProviderOptions
     {
-        public Collection<int> Delays { get; set; }
+        public Collection<int> Delays { get; set; } = new Collection<int>();
     }
 }

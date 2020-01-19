@@ -61,11 +61,11 @@ services:
     build:
       context: .
       dockerfile: Alembic/Dockerfile
-    environment:
-      - WebHookReporterOptions__Url=services/uuuuu
+    #environment:
+    #  - WebHookReporterOptions__Url=services/TQCU0B4F4/BS7PKCQP3/vCi8wo4oYyUrVRdPzrQQpB59
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./settings.json:/app/appsettings.json:ro
+      - ./settings.json:/app/appsettings.json
     healthcheck:
       test: curl --max-time "5" --no-buffer -s --unix-socket "/var/run/docker.sock" --fail http://localhost/_ping || exit 1
       interval: 2s

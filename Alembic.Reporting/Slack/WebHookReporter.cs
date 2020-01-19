@@ -27,9 +27,9 @@ namespace Alembic.Reporting.Slack
         private readonly IRetryProvider _retryProvider;
         private readonly ILogger _logger;
 
-        public WebHookReporter(IOptions<WebHookReporterOptions> options, IHttpClientFactory factory, IRetryProvider retryProvider, ILogger<WebHookReporter> logger)
+        public WebHookReporter(IOptionsMonitor<WebHookReporterOptions> options, IHttpClientFactory factory, IRetryProvider retryProvider, ILogger<WebHookReporter> logger)
         {
-            _options = options.Value;
+            _options = options.CurrentValue;
             _client = factory.CreateClient();
             _client.BaseAddress = new Uri("https://hooks.slack.com/");
             _retryProvider = retryProvider;
@@ -45,20 +45,9 @@ namespace Alembic.Reporting.Slack
             {
                 await
                     _retryProvider.RetryOn<HttpRequestException, HttpResponseMessage>(
-                        x =>
-                        {
-                            if (!x.Data.Contains(nameof(HttpStatusCode)))
-                                return false;
-
-                            var statusCode = (HttpStatusCode)x.Data[nameof(HttpStatusCode)];
-
-                            if (statusCode < HttpStatusCode.InternalServerError)
-                                return statusCode == HttpStatusCode.RequestTimeout;
-
-                            return false;
-                        },
-                        x => TransientHttpStatusCodePredicate(x),
-                        () => Send(_client, JsonConvert.SerializeObject(payload, Formatting.Indented), linkedSource.Token));
+                        CheckError,
+                        TransientHttpStatusCodePredicate,
+                        () => Send(_client, _options, JsonConvert.SerializeObject(payload, Formatting.Indented), _logger, linkedSource.Token));
             }
             catch (Exception ex)
             {
@@ -66,24 +55,42 @@ namespace Alembic.Reporting.Slack
             }
         }
 
-        private async Task<HttpResponseMessage> Send(HttpClient client, string payload, CancellationToken cancellation)
+        private bool CheckError(HttpRequestException x)
         {
+            _logger.LogError(x, "Report sending failed");
+
+            if (!x.Data.Contains(nameof(HttpStatusCode)))
+                return false;
+
+            var statusCode = (HttpStatusCode)x.Data[nameof(HttpStatusCode)];
+
+            if (statusCode < HttpStatusCode.InternalServerError)
+                return statusCode == HttpStatusCode.RequestTimeout;
+
+            return false;
+        }
+
+        private static async Task<HttpResponseMessage> Send(HttpClient client, WebHookReporterOptions options, string payload, ILogger logger, CancellationToken cancellation)
+        {
+
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri(_client.BaseAddress + _options.Url),
+                RequestUri = new Uri(client.BaseAddress + options.Url),
                 Content = new StringContent(payload)
             };
 
-            if (_options.Authorization != null)
-                request.Headers.Authorization = new AuthenticationHeaderValue(_options.Authorization.Scheme, _options.Authorization.Parameter);
+            if (options.Authorization != null)
+                request.Headers.Authorization = new AuthenticationHeaderValue(options.Authorization.Scheme, options.Authorization.Parameter);
 
-            foreach (var header in _options.Headers)
+            foreach (var header in options.Headers)
             {
                 request.Headers.Add(header.Name, header.Value);
             }
 
             var response = await client.SendAsync(request, cancellation);
+
+            logger.LogDebug($"Report send  to URL: {client.BaseAddress + options.Url} with received status: {response.StatusCode}");
 
             if (!response.IsSuccessStatusCode)
                 throw new HttpRequestException(response.ReasonPhrase) { Data = { [nameof(HttpStatusCode)] = response.StatusCode } };

@@ -88,11 +88,13 @@ namespace Alembic.Docker.Api
         public static T GetProperty<T>(this HttpRequestMessage request, string key)
         {
             object obj;
+
             if (request.Properties.TryGetValue(key, out obj))
             {
                 return (T)obj;
             }
-            return default(T);
+
+            return default;
         }
 
         public static void SetProperty<T>(this HttpRequestMessage request, string key, T value)

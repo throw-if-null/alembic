@@ -16,9 +16,9 @@ namespace Alembic.Common.Resiliency
         private readonly RetryProviderOptions _options;
         private readonly ILogger _logger;
 
-        public RetryProvider(IOptions<RetryProviderOptions> options, ILogger<RetryProvider> logger)
+        public RetryProvider(IOptionsMonitor<RetryProviderOptions> options, ILogger<RetryProvider> logger)
         {
-            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            _options = options?.CurrentValue ?? throw new ArgumentNullException(nameof(options));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
