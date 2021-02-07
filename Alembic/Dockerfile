@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/core/runtime:3.1-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-alpine AS base
 ADD ./Alembic/VERSION .
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 WORKDIR /src
 COPY ["Alembic/Alembic.csproj", "Alembic/"]
 COPY ["Alembic.Docker.Api/Alembic.Docker.Api.csproj", "Alembic.Docker.Api/"]

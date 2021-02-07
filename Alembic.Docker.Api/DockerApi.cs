@@ -88,7 +88,7 @@ namespace Alembic.Docker.Api
 
             if (status == HttpStatusCode.NoContent)
             {
-                await _reporter.Send(CreateSlackMessage("Kill", "danger", "Container killed successfully.", DateTime.UtcNow, container), cancellation);
+                await _reporter.Send(CreateKillMesage("Container killed successfully.", container), cancellation);
 
                 if (!_containerRetries.TryRemove(id, out int _))
                     _logger.LogError($"Failed to remove container: {id} from the cache.");
@@ -97,7 +97,7 @@ namespace Alembic.Docker.Api
             }
             else
             {
-                await _reporter.Send(CreateSlackMessage("Kill", "danger", "Failed to kill container. Response status: {status}", DateTime.UtcNow, container), cancellation);
+                await _reporter.Send(CreateKillMesage("Failed to kill container. Response status: {status}", container), cancellation);
                 _logger.LogWarning($"Failed to kill container: {id}. Response status: {status} content: {body}");
             }
 
@@ -145,8 +145,8 @@ namespace Alembic.Docker.Api
             var container = await InspectContainer(id, cancellation);
 
             object slackMessage = status == HttpStatusCode.NoContent
-                ? CreateSlackMessage("Restart", "warning", reportMessage, DateTime.UtcNow, container)
-                : CreateSlackMessage("Restart", "warning", $"Failed to restart container. Response status: {status}", DateTime.UtcNow, container);
+                ? CreateRestartMessage(reportMessage, container)
+                : CreateRestartMessage($"Failed to restart container. Response status: {status}", container);
 
             await _reporter.Send(slackMessage, cancellation);
 
@@ -158,7 +158,17 @@ namespace Alembic.Docker.Api
             return status;
         }
 
-        private object CreateSlackMessage(string eventName, string color, string message, DateTime date, Container container)
+        private static object CreateKillMesage(string message, Container container)
+        {
+            return CreateSlackMessage("Kill", "danger", message, DateTime.UtcNow, container);
+        }
+
+        private static object CreateRestartMessage(string message, Container container)
+        {
+            return CreateSlackMessage("Restart", "warning", message, DateTime.UtcNow, container);
+        }
+
+        private static object CreateSlackMessage(string eventName, string color, string message, DateTime date, Container container)
         {
             var fields = new List<object>
             {
@@ -206,6 +216,9 @@ namespace Alembic.Docker.Api
 
         private static readonly Action<object?> Callback = delegate (object? stream)
         {
+            if (stream == null)
+                return;
+
             ((IDisposable)stream).Dispose();
         };
     }

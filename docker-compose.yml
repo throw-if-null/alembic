@@ -1,6 +1,4 @@
-version: '3.7'
-
-services:
+version: '2.4'
 
 # Templates:
 x-base: &base-service-template
