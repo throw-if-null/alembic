@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Alembic.Common\Alembic.Common.csproj" />
-    <ProjectReference Include="..\Alembic.Docker\Alembic.Docker.csproj" />
   </ItemGroup>
 
 </Project>

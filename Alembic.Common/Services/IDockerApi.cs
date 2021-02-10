@@ -1,10 +1,10 @@
-﻿using Alembic.Docker.Contracts;
+﻿using Alembic.Common.Contracts;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Services
+namespace Alembic.Common.Services
 {
     public interface IDockerApi
     {

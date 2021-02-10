@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Alembic.Docker.Contracts
+namespace Alembic.Common.Contracts
 {
     public class ContainerConfig
     {

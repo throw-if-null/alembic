@@ -11,7 +11,7 @@ services:
   portainer:
     <<: *base-service-template
     image: portainer/portainer:1.23.0
-    container_name: portainer.ctn
+    container_name: portainer
     command: -p :80
     ports:
       - "9000:80"
@@ -56,11 +56,12 @@ services:
 
   alembic:
     image: mirzamerdovic/alembic:1.0.0
+    container_name: alembic
     build:
       context: .
       dockerfile: Alembic/Dockerfile
     #environment:
-    #  - WebHookReporterOptions__Url=services/TQCU0B4F4/BS7PKCQP3/vCi8wo4oYyUrVRdPzrQQpB59
+    #  - WebHookReporterOptions__Url=services/TQCU0B4F4/B01MWLCEEDS/r3jgy2b7QngrnDHJfOdeif7S
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./settings.json:/app/appsettings.json

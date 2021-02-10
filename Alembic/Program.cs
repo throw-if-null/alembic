@@ -1,7 +1,7 @@
 ﻿using Alembic.Common.Resiliency;
+using Alembic.Common.Services;
 using Alembic.Docker.Api;
 using Alembic.Docker.Api.Client;
-using Alembic.Docker.Services;
 using Alembic.Reporting.Slack;
 using Alembic.Services;
 using Microsoft.Extensions.Configuration;

@@ -1,9 +1,8 @@
-﻿using Alembic.Docker.Contracts;
-using Alembic.Docker.Services;
+﻿using Alembic.Common.Contracts;
+using Alembic.Common.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 

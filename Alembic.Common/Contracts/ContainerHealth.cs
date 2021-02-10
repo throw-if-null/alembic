@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Alembic.Docker.Contracts
+namespace Alembic.Common.Contracts
 {
     public class ContainerHealth
     {

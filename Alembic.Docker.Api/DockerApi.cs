@@ -1,5 +1,5 @@
-﻿using Alembic.Docker.Contracts;
-using Alembic.Docker.Services;
+﻿using Alembic.Common.Contracts;
+using Alembic.Common.Services;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using static Alembic.Docker.Api.DockerClient;
 
 namespace Alembic.Docker.Api

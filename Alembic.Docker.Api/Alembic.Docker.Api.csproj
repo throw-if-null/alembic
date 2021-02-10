@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Alembic.Docker\Alembic.Docker.csproj" />
     <ProjectReference Include="..\Alembic.Reporting\Alembic.Reporting.csproj" />
   </ItemGroup>
 

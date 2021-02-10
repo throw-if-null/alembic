@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic", "Alembic\Alembic.csproj", "{D108B892-3691-45E6-876B-2B8DBC7AFCC3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic.Docker", "Alembic.Docker\Alembic.Docker.csproj", "{FF038EAE-DEB4-436F-AE32-99D661B9E934}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic.Docker.Api", "Alembic.Docker.Api\Alembic.Docker.Api.csproj", "{006C9C82-6617-4180-B4C0-07DF8628019E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic.Reporting", "Alembic.Reporting\Alembic.Reporting.csproj", "{3D974FC7-EBC3-4C57-843A-7E3C7EACD4B3}"
@@ -28,10 +26,6 @@ Global
 		{D108B892-3691-45E6-876B-2B8DBC7AFCC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D108B892-3691-45E6-876B-2B8DBC7AFCC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D108B892-3691-45E6-876B-2B8DBC7AFCC3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF038EAE-DEB4-436F-AE32-99D661B9E934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF038EAE-DEB4-436F-AE32-99D661B9E934}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FF038EAE-DEB4-436F-AE32-99D661B9E934}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FF038EAE-DEB4-436F-AE32-99D661B9E934}.Release|Any CPU.Build.0 = Release|Any CPU
 		{006C9C82-6617-4180-B4C0-07DF8628019E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{006C9C82-6617-4180-B4C0-07DF8628019E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{006C9C82-6617-4180-B4C0-07DF8628019E}.Release|Any CPU.ActiveCfg = Release|Any CPU
