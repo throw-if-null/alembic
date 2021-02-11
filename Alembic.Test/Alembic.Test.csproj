@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Alembic.Docker.Api\Alembic.Docker.csproj" />
+    <ProjectReference Include="..\Alembic.Docker\Alembic.Docker.csproj" />
   </ItemGroup>
 
   <ItemGroup>

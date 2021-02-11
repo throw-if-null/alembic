@@ -5,7 +5,6 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 WORKDIR /src
 COPY ["Alembic/Alembic.csproj", "Alembic/"]
-COPY ["Alembic.Docker.Api/Alembic.Docker.Api.csproj", "Alembic.Docker.Api/"]
 COPY ["Alembic.Docker/Alembic.Docker.csproj", "Alembic.Docker/"]
 COPY ["Alembic.Reporting/Alembic.Reporting.csproj", "Alembic.Reporting/"]
 COPY ["Alembic.Common/Alembic.Common.csproj", "Alembic.Common/"]

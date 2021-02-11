@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Alembic.Common\Alembic.Common.csproj" />
-    <ProjectReference Include="..\Alembic.Docker.Api\Alembic.Docker.csproj" />
+    <ProjectReference Include="..\Alembic.Docker\Alembic.Docker.csproj" />
     <ProjectReference Include="..\Alembic.Reporting\Alembic.Reporting.csproj" />
   </ItemGroup>
 
