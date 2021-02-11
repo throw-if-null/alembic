@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 
-namespace Alembic.Docker.Api
+namespace Alembic.Docker
 {
     internal static class RequestExtensions
     {

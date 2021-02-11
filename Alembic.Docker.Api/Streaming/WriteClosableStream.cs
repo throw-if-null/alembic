@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Alembic.Docker.Api.Streaming
+namespace Alembic.Docker.Streaming
 {
     public abstract class WriteClosableStream : Stream
     {

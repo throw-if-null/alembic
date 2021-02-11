@@ -1,4 +1,4 @@
-﻿namespace Alembic.Docker.Api
+﻿namespace Alembic.Docker
 {
     public enum RedirectMode
     {

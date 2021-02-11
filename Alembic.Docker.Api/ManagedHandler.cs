@@ -1,4 +1,4 @@
-﻿using Alembic.Docker.Api.Streaming;
+﻿using Alembic.Docker.Streaming;
 using System;
 using System.Globalization;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Api
+namespace Alembic.Docker
 {
     public class ManagedHandler : HttpMessageHandler
     {

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Api.Streaming
+namespace Alembic.Docker.Streaming
 {
     internal class DockerPipeStream : WriteClosableStream
     {

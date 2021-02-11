@@ -1,4 +1,4 @@
-﻿using Alembic.Docker.Api.Client;
+﻿using Alembic.Docker.Client;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,10 +6,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using static Alembic.Docker.DockerClient;
 
-using static Alembic.Docker.Api.DockerClient;
-
-namespace Alembic.Docker.Api
+namespace Alembic.Docker
 {
     public interface IDockerClient
     {

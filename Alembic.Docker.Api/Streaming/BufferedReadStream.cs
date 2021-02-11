@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Api.Streaming
+namespace Alembic.Docker.Streaming
 {
     internal class BufferedReadStream : WriteClosableStream
     {

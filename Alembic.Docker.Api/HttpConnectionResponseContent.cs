@@ -1,10 +1,10 @@
-﻿using Alembic.Docker.Api.Streaming;
+﻿using Alembic.Docker.Streaming;
 using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Alembic.Docker.Api
+namespace Alembic.Docker
 {
     public class HttpConnectionResponseContent : HttpContent
     {

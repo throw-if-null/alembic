@@ -13,9 +13,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using static Alembic.Docker.Api.DockerClient;
+using static Alembic.Docker.DockerClient;
 
-namespace Alembic.Docker.Api
+namespace Alembic.Docker
 {
     public class DockerApi : IDockerApi
     {
@@ -149,12 +149,12 @@ namespace Alembic.Docker.Api
                 ? CreateRestartMessage(reportMessage, container)
                 : CreateRestartMessage($"Failed to restart container. Response status: {status}", container);
 
-            await _reporter.Send(slackMessage, cancellation);
-
             if (status == HttpStatusCode.NoContent)
                 _logger.LogInformation($"Contrainer: {id} restarted successfully.");
             else
                 _logger.LogWarning($"Failed to restart container: {id}. Response status: {status} body: {body}");
+
+            await _reporter.Send(slackMessage, cancellation);
 
             return status;
         }
@@ -169,6 +169,7 @@ namespace Alembic.Docker.Api
             return CreateSlackMessage("Restart", "warning", message, DateTime.UtcNow, container);
         }
 
+        // TODO - move this to Slack report integration
         private static object CreateSlackMessage(string eventName, string color, string message, DateTime date, Container container)
         {
             var fields = new List<object>

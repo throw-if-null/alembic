@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Alembic.Docker.Api
+namespace Alembic.Docker
 {
     internal sealed class UnixDomainSocketEndPoint : EndPoint
     {

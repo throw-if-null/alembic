@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace Alembic.Docker.Api
+namespace Alembic.Docker
 {
     public class DockerApiException : Exception
     {

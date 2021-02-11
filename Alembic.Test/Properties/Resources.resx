@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Healthy_InspectContainer" xml:space="preserve">
+    <value>{"Id":"bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0","Created":"2021-02-11T21:41:35.2645907Z","Path":"/opt/mssql/bin/sqlservr","Args":[],"State":{"Status":"running","Running":true,"Paused":false,"Restarting":false,"OOMKilled":false,"Dead":false,"Pid":31918,"ExitCode":0,"Error":"","StartedAt":"2021-02-11T21:41:35.8078915Z","FinishedAt":"0001-01-01T00:00:00Z","Health":{"Status":"healthy","FailingStreak":0,"Log":[{"Start":"2021-02-11T21:42:09.4376587Z","End":"2021-02-11T21:42:09.5446493Z","ExitCode":0,"Output":"           \n-----------\n          1\n\n(1 rows affected)\n"},{"Start":"2021-02-11T21:42:11.5587074Z","End":"2021-02-11T21:42:11.6776266Z","ExitCode":0,"Output":"           \n-----------\n          1\n\n(1 rows affected)\n"},{"Start":"2021-02-11T21:42:13.6902241Z","End":"2021-02-11T21:42:13.7950376Z","ExitCode":0,"Output":"           \n-----------\n          1\n\n(1 rows affected)\n"},{"Start":"2021-02-11T21:42:15.8089676Z","End":"2021-02-11T21:42:15.909514Z","ExitCode":0,"Output":"           \n-----------\n          1\n\n(1 rows affected)\n"},{"Start":"2021-02-11T21:42:17.9222687Z","End":"2021-02-11T21:42:18.0443359Z","ExitCode":0,"Output":"           \n-----------\n          1\n\n(1 rows affected)\n"}]}},"Image":"sha256:314918ddaedfedc0345d3191546d800bd7f28bae180541c9b8b45776d322c8c2","ResolvConfPath":"/var/lib/docker/containers/bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0/resolv.conf","HostnamePath":"/var/lib/docker/containers/bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0/hostname","HostsPath":"/var/lib/docker/containers/bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0/hosts","LogPath":"/var/lib/docker/containers/bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0/bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0-json.log","Name":"/sqlserver.ctn","RestartCount":0,"Driver":"overlay2","Platform":"linux","MountLabel":"","ProcessLabel":"","AppArmorProfile":"","ExecIDs":null,"HostConfig":{"Binds":[],"ContainerIDFile":"","LogConfig":{"Type":"json-file","Config":{}},"NetworkMode":"local","PortBindings":{"1433/tcp":[{"HostIp":"","HostPort":"1433"}]},"RestartPolicy":{"Name":"","MaximumRetryCount":0},"AutoRemove":false,"VolumeDriver":"","VolumesFrom":[],"CapAdd":null,"CapDrop":null,"CgroupnsMode":"host","Dns":null,"DnsOptions":null,"DnsSearch":null,"ExtraHosts":null,"GroupAdd":null,"IpcMode":"private","Cgroup":"","Links":null,"OomScoreAdj":0,"PidMode":"","Privileged":false,"PublishAllPorts":false,"ReadonlyRootfs":false,"SecurityOpt":null,"UTSMode":"","UsernsMode":"","ShmSize":67108864,"Runtime":"runc","ConsoleSize":[0,0],"Isolation":"","CpuShares":0,"Memory":0,"NanoCpus":0,"CgroupParent":"","BlkioWeight":0,"BlkioWeightDevice":null,"BlkioDeviceReadBps":null,"BlkioDeviceWriteBps":null,"BlkioDeviceReadIOps":null,"BlkioDeviceWriteIOps":null,"CpuPeriod":0,"CpuQuota":0,"CpuRealtimePeriod":0,"CpuRealtimeRuntime":0,"CpusetCpus":"","CpusetMems":"","Devices":null,"DeviceCgroupRules":null,"DeviceRequests":null,"KernelMemory":0,"KernelMemoryTCP":0,"MemoryReservation":0,"MemorySwap":0,"MemorySwappiness":null,"OomKillDisable":false,"PidsLimit":null,"Ulimits":null,"CpuCount":0,"CpuPercent":0,"IOMaximumIOps":0,"IOMaximumBandwidth":0,"MaskedPaths":["/proc/asound","/proc/acpi","/proc/kcore","/proc/keys","/proc/latency_stats","/proc/timer_list","/proc/timer_stats","/proc/sched_debug","/proc/scsi","/sys/firmware"],"ReadonlyPaths":["/proc/bus","/proc/fs","/proc/irq","/proc/sys","/proc/sysrq-trigger"],"Init":true},"GraphDriver":{"Data":{"LowerDir":"/var/lib/docker/overlay2/992d9e3a0923ab229a4e1a214f662d6490aa2fccf551d255dbbf356b078e84a4-init/diff:/var/lib/docker/overlay2/d88ab48867d3ce82b35900ad32ff00e0cc32311e24638433679b79e0f8966a21/diff:/var/lib/docker/overlay2/742f0a22bd3d73ba1b6a27253b0ab65170bbd6e07184e30f0f02609a23bbb79b/diff:/var/lib/docker/overlay2/782b51ea45d68a92540caf5b19363867b8de47ba54b275857bf83a3b294152d8/diff:/var/lib/docker/overlay2/f017438d389ca741935f1d8093a8ee5fd738261d8435777b8ff2fb56f815c4b3/diff:/var/lib/docker/overlay2/40ea2c99c8c927873b6054e2576d19f8e118292376ffac5505805ad6d7dd5133/diff:/var/lib/docker/overlay2/ea9ef5cb76621c9d51792d0155f206e555537b046722acafbf28e5a342af1488/diff:/var/lib/docker/overlay2/28fa3bf015b73f9941e5d4ece85f4cfdc083f93883f206da1be8c8aa5b01c4c5/diff:/var/lib/docker/overlay2/29ef8b51cb708abb49b084d86f291cb79253a49d8e734c95e5b3a17c8b0fe4e1/diff:/var/lib/docker/overlay2/a106797001b778e8df6df9ba71ab9e0a2090ce1108ca0dd99011364f35d2c274/diff","MergedDir":"/var/lib/docker/overlay2/992d9e3a0923ab229a4e1a214f662d6490aa2fccf551d255dbbf356b078e84a4/merged","UpperDir":"/var/lib/docker/overlay2/992d9e3a0923ab229a4e1a214f662d6490aa2fccf551d255dbbf356b078e84a4/diff","WorkDir":"/var/lib/docker/overlay2/992d9e3a0923ab229a4e1a214f662d6490aa2fccf551d255dbbf356b078e84a4/work"},"Name":"overlay2"},"Mounts":[],"Config":{"Hostname":"bbd92c776523","Domainname":"","User":"","AttachStdin":false,"AttachStdout":false,"AttachStderr":false,"ExposedPorts":{"1433/tcp":{}},"Tty":false,"OpenStdin":false,"StdinOnce":false,"Env":["ACCEPT_EULA=Y","SA_PASSWORD=Password1!","PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"],"Cmd":["/opt/mssql/bin/sqlservr"],"Healthcheck":{"Test":["CMD-SHELL","./opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P Password1! -Q \"SELECT 1\" || exit 1"],"Interval":2000000000,"Timeout":2000000000,"StartPeriod":3000000000,"Retries":3},"Image":"microsoft/mssql-server-linux:latest","Volumes":null,"WorkingDir":"","Entrypoint":null,"OnBuild":null,"Labels":{"autoheal":"true","com.docker.compose.config-hash":"d23ef89dfff556a481425978fa24c9e6aaff699f481692ecd26f89ff664c483e","com.docker.compose.container-number":"1","com.docker.compose.oneoff":"False","com.docker.compose.project":"alembic","com.docker.compose.project.config_files":"docker-compose.yml","com.docker.compose.project.working_dir":"D:\\Source\\GitHub\\alembic","com.docker.compose.service":"sqlserver","com.docker.compose.version":"1.27.4","com.microsoft.product":"Microsoft SQL Server","com.microsoft.version":"14.0.3048.4","vendor":"Microsoft"}},"NetworkSettings":{"Bridge":"","SandboxID":"a95df273a35f0c4ad1b35b2915553402949f670c7998913d8b3b0725fc3b8a0e","HairpinMode":false,"LinkLocalIPv6Address":"","LinkLocalIPv6PrefixLen":0,"Ports":{"1433/tcp":[{"HostIp":"0.0.0.0","HostPort":"1433"}]},"SandboxKey":"/var/run/docker/netns/a95df273a35f","SecondaryIPAddresses":null,"SecondaryIPv6Addresses":null,"EndpointID":"","Gateway":"","GlobalIPv6Address":"","GlobalIPv6PrefixLen":0,"IPAddress":"","IPPrefixLen":0,"IPv6Gateway":"","MacAddress":"","Networks":{"local":{"IPAMConfig":null,"Links":null,"Aliases":["sqlserver","bbd92c776523"],"NetworkID":"cdae815b328716628a6b977d4d1934249826e30d04fc01a29867e88a63014c13","EndpointID":"a65296dac6afc5edba791b00026fb8660919b577e709241a28f3f632d550d57e","Gateway":"172.19.0.1","IPAddress":"172.19.0.3","IPPrefixLen":16,"IPv6Gateway":"","GlobalIPv6Address":"","GlobalIPv6PrefixLen":0,"MacAddress":"02:42:ac:13:00:03","DriverOpts":null}}}}</value>
+  </data>
+  <data name="Healthy_InspectContainer_Id" xml:space="preserve">
+    <value>bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0</value>
+  </data>
+  <data name="Unhealthy_InspectContainer" xml:space="preserve">
+    <value>{"Id":"0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711","Created":"2021-02-11T21:23:11.0504465Z","Path":"docker-entrypoint.sh","Args":["sh","-c","mongod --bind_ip 0.0.0.0 --port 80"],"State":{"Status":"running","Running":true,"Paused":false,"Restarting":false,"OOMKilled":false,"Dead":false,"Pid":25886,"ExitCode":0,"Error":"","StartedAt":"2021-02-11T21:36:46.897192Z","FinishedAt":"2021-02-11T21:36:46.0908344Z","Health":{"Status":"starting","FailingStreak":2,"Log":[{"Start":"2021-02-11T21:36:35.5185015Z","End":"2021-02-11T21:36:35.6664386Z","ExitCode":1,"Output":"2021-02-11T21:36:35.660+0000 E  QUERY    [js] Error: couldn't connect to server mongo:8023, connection attempt failed: SocketException: Error connecting to mongo:8023 (172.19.0.3:8023) :: caused by :: Connection refused :\nconnect@src/mongo/shell/mongo.js:341:17\n@(connect):3:6\n2021-02-11T21:36:35.663+0000 F  -        [main] exception: connect failed\n2021-02-11T21:36:35.663+0000 E  -        [main] exiting with code 1\n"},{"Start":"2021-02-11T21:36:40.7019391Z","End":"2021-02-11T21:36:40.8301209Z","ExitCode":1,"Output":"2021-02-11T21:36:40.824+0000 E  QUERY    [js] Error: couldn't connect to server mongo:8023, connection attempt failed: SocketException: Error connecting to mongo:8023 (172.19.0.3:8023) :: caused by :: Connection refused :\nconnect@src/mongo/shell/mongo.js:341:17\n@(connect):3:6\n2021-02-11T21:36:40.826+0000 F  -        [main] exception: connect failed\n2021-02-11T21:36:40.826+0000 E  -        [main] exiting with code 1\n"},{"Start":"2021-02-11T21:36:45.8628754Z","End":"2021-02-11T21:36:45.9962522Z","ExitCode":1,"Output":"2021-02-11T21:36:45.990+0000 E  QUERY    [js] Error: couldn't connect to server mongo:8023, connection attempt failed: SocketException: Error connecting to mongo:8023 (172.19.0.3:8023) :: caused by :: Connection refused :\nconnect@src/mongo/shell/mongo.js:341:17\n@(connect):3:6\n2021-02-11T21:36:45.993+0000 F  -        [main] exception: connect failed\n2021-02-11T21:36:45.993+0000 E  -        [main] exiting with code 1\n"},{"Start":"2021-02-11T21:36:51.8977252Z","End":"2021-02-11T21:36:52.0296262Z","ExitCode":1,"Output":"2021-02-11T21:36:52.024+0000 E  QUERY    [js] Error: couldn't connect to server mongo:8023, connection attempt failed: SocketException: Error connecting to mongo:8023 (172.19.0.3:8023) :: caused by :: Connection refused :\nconnect@src/mongo/shell/mongo.js:341:17\n@(connect):3:6\n2021-02-11T21:36:52.026+0000 F  -        [main] exception: connect failed\n2021-02-11T21:36:52.026+0000 E  -        [main] exiting with code 1\n"},{"Start":"2021-02-11T21:36:57.0611838Z","End":"2021-02-11T21:36:57.1801211Z","ExitCode":1,"Output":"2021-02-11T21:36:57.175+0000 E  QUERY    [js] Error: couldn't connect to server mongo:8023, connection attempt failed: SocketException: Error connecting to mongo:8023 (172.19.0.3:8023) :: caused by :: Connection refused :\nconnect@src/mongo/shell/mongo.js:341:17\n@(connect):3:6\n2021-02-11T21:36:57.177+0000 F  -        [main] exception: connect failed\n2021-02-11T21:36:57.177+0000 E  -        [main] exiting with code 1\n"}]}},"Image":"sha256:66c68b650ad44f7a95c256ad2df5c40fbc3b13001f36ac7b7cd25f5f9a09be7d","ResolvConfPath":"/var/lib/docker/containers/0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711/resolv.conf","HostnamePath":"/var/lib/docker/containers/0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711/hostname","HostsPath":"/var/lib/docker/containers/0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711/hosts","LogPath":"/var/lib/docker/containers/0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711/0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711-json.log","Name":"/alembic_mongo_1","RestartCount":0,"Driver":"overlay2","Platform":"linux","MountLabel":"","ProcessLabel":"","AppArmorProfile":"","ExecIDs":null,"HostConfig":{"Binds":[],"ContainerIDFile":"","LogConfig":{"Type":"json-file","Config":{}},"NetworkMode":"local","PortBindings":{"80/tcp":[{"HostIp":"","HostPort":""}]},"RestartPolicy":{"Name":"","MaximumRetryCount":0},"AutoRemove":false,"VolumeDriver":"","VolumesFrom":[],"CapAdd":null,"CapDrop":null,"CgroupnsMode":"host","Dns":null,"DnsOptions":null,"DnsSearch":null,"ExtraHosts":null,"GroupAdd":null,"IpcMode":"private","Cgroup":"","Links":null,"OomScoreAdj":0,"PidMode":"","Privileged":false,"PublishAllPorts":false,"ReadonlyRootfs":false,"SecurityOpt":null,"UTSMode":"","UsernsMode":"","ShmSize":67108864,"Runtime":"runc","ConsoleSize":[0,0],"Isolation":"","CpuShares":0,"Memory":0,"NanoCpus":0,"CgroupParent":"","BlkioWeight":0,"BlkioWeightDevice":null,"BlkioDeviceReadBps":null,"BlkioDeviceWriteBps":null,"BlkioDeviceReadIOps":null,"BlkioDeviceWriteIOps":null,"CpuPeriod":0,"CpuQuota":0,"CpuRealtimePeriod":0,"CpuRealtimeRuntime":0,"CpusetCpus":"","CpusetMems":"","Devices":null,"DeviceCgroupRules":null,"DeviceRequests":null,"KernelMemory":0,"KernelMemoryTCP":0,"MemoryReservation":0,"MemorySwap":0,"MemorySwappiness":null,"OomKillDisable":false,"PidsLimit":null,"Ulimits":null,"CpuCount":0,"CpuPercent":0,"IOMaximumIOps":0,"IOMaximumBandwidth":0,"MaskedPaths":["/proc/asound","/proc/acpi","/proc/kcore","/proc/keys","/proc/latency_stats","/proc/timer_list","/proc/timer_stats","/proc/sched_debug","/proc/scsi","/sys/firmware"],"ReadonlyPaths":["/proc/bus","/proc/fs","/proc/irq","/proc/sys","/proc/sysrq-trigger"],"Init":true},"GraphDriver":{"Data":{"LowerDir":"/var/lib/docker/overlay2/e747acc1558f15cf699a20d763941d6f344f3931b3c7714af3647bf4d1f21045-init/diff:/var/lib/docker/overlay2/223d5291d417da8ed6ed56994d0577e1368b5c5747d6847df5d0b93008fce2cc/diff:/var/lib/docker/overlay2/0db6d5f270e4031462c3b8dd5bdca9ee41938a5fd6940ad4c1fa2a598d91c530/diff:/var/lib/docker/overlay2/5f16fbd1025f38387088fddb82d9cce486683bef0f2dc73fe3d479d93a7a0e49/diff:/var/lib/docker/overlay2/a05d99c6a88a91b9c3c96df1cba05887c6ac6cea3cfa65f07395c84f35b3d188/diff:/var/lib/docker/overlay2/5852c6238aa873b8db644e5a942f66fcc4457c6c8b8b2144cefd72bff50a4159/diff:/var/lib/docker/overlay2/d6c047fb40b44d3585983df6dc05efa4d9e5685f3fda1b87423c0ee0a9218b75/diff:/var/lib/docker/overlay2/9c6e269f1bff05137fa7b33c44562fb3f2cc837d1c66218e3fa8b83d4a53f187/diff:/var/lib/docker/overlay2/bbce4978a7c0a4d6f5d19b5bb0eebfedfa24b05b310fdd196e65361fe2aea5ed/diff:/var/lib/docker/overlay2/6c12dedc5d5b96ec29d365921f4f22bff6b38d3d9f3f59945d0263138af7352a/diff:/var/lib/docker/overlay2/756484619ba650271c03ef68c4763ec90b7f553a6e70fd67e255d32eda6adb69/diff:/var/lib/docker/overlay2/afab6e1e16ac9c4066adaa96fec82a7eb1dc8910027d04485c7a19ea05456ab3/diff:/var/lib/docker/overlay2/640516e619706ef0f32b658ad8d94c2dd2d0b0002c2ad157811bc6a46b3251ca/diff:/var/lib/docker/overlay2/c8b19e99e42ef9c89b9d22df992aebd5ff78ec0fd7557c001167963534e1be6f/diff","MergedDir":"/var/lib/docker/overlay2/e747acc1558f15cf699a20d763941d6f344f3931b3c7714af3647bf4d1f21045/merged","UpperDir":"/var/lib/docker/overlay2/e747acc1558f15cf699a20d763941d6f344f3931b3c7714af3647bf4d1f21045/diff","WorkDir":"/var/lib/docker/overlay2/e747acc1558f15cf699a20d763941d6f344f3931b3c7714af3647bf4d1f21045/work"},"Name":"overlay2"},"Mounts":[{"Type":"volume","Name":"7dd2bce9e5d86bd74d040d869e62e9619e50cccc7f6f6229d2d6e431e96e771e","Source":"/var/lib/docker/volumes/7dd2bce9e5d86bd74d040d869e62e9619e50cccc7f6f6229d2d6e431e96e771e/_data","Destination":"/data/db","Driver":"local","Mode":"","RW":true,"Propagation":""},{"Type":"volume","Name":"80eb77d6bb5096fd3617336ef783863ad12338d80d90a8e703e41450e3720522","Source":"/var/lib/docker/volumes/80eb77d6bb5096fd3617336ef783863ad12338d80d90a8e703e41450e3720522/_data","Destination":"/data/configdb","Driver":"local","Mode":"","RW":true,"Propagation":""}],"Config":{"Hostname":"0051a16c5acf","Domainname":"","User":"","AttachStdin":false,"AttachStdout":false,"AttachStderr":false,"ExposedPorts":{"27017/tcp":{},"80/tcp":{}},"Tty":false,"OpenStdin":false,"StdinOnce":false,"Env":["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin","GOSU_VERSION=1.12","JSYAML_VERSION=3.13.1","GPG_KEYS=E162F504A20CDF15827F718D4B7C549A058F8B6B","MONGO_PACKAGE=mongodb-org","MONGO_REPO=repo.mongodb.org","MONGO_MAJOR=4.2","MONGO_VERSION=4.2.7"],"Cmd":["sh","-c","mongod --bind_ip 0.0.0.0 --port 80"],"Healthcheck":{"Test":["CMD-SHELL","echo 'db.stats().ok' | mongo mongo:8023 --quiet"],"Interval":5000000000,"Timeout":3000000000,"Retries":3},"Image":"mongo:latest","Volumes":{"/data/configdb":{},"/data/db":{}},"WorkingDir":"","Entrypoint":["docker-entrypoint.sh"],"OnBuild":null,"Labels":{"autoheal":"true","com.docker.compose.config-hash":"3c6ff00d43678d363a09684bc59ea7345977ed77a247dab2a688740190fda366","com.docker.compose.container-number":"1","com.docker.compose.oneoff":"False","com.docker.compose.project":"alembic","com.docker.compose.project.config_files":"docker-compose.yml","com.docker.compose.project.working_dir":"D:\\Source\\GitHub\\alembic","com.docker.compose.service":"mongo","com.docker.compose.version":"1.27.4"}},"NetworkSettings":{"Bridge":"","SandboxID":"05c568acabed0161f056173cc9d03f80c4051164e25e7fe625ac97c91f10b7a1","HairpinMode":false,"LinkLocalIPv6Address":"","LinkLocalIPv6PrefixLen":0,"Ports":{"27017/tcp":null,"80/tcp":[{"HostIp":"0.0.0.0","HostPort":"49241"}]},"SandboxKey":"/var/run/docker/netns/05c568acabed","SecondaryIPAddresses":null,"SecondaryIPv6Addresses":null,"EndpointID":"","Gateway":"","GlobalIPv6Address":"","GlobalIPv6PrefixLen":0,"IPAddress":"","IPPrefixLen":0,"IPv6Gateway":"","MacAddress":"","Networks":{"local":{"IPAMConfig":null,"Links":null,"Aliases":["0051a16c5acf","mongo"],"NetworkID":"cdae815b328716628a6b977d4d1934249826e30d04fc01a29867e88a63014c13","EndpointID":"63251d6989065f2ac571a238401a422ca7027891d26e07d2111c0adfc26305c8","Gateway":"172.19.0.1","IPAddress":"172.19.0.3","IPPrefixLen":16,"IPv6Gateway":"","GlobalIPv6Address":"","GlobalIPv6PrefixLen":0,"MacAddress":"02:42:ac:13:00:03","DriverOpts":null}}}}</value>
+  </data>
+  <data name="Unhealthy_InspectContainer_Id" xml:space="preserve">
+    <value>0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711</value>
+  </data>
+</root>
