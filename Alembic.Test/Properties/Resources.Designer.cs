@@ -61,6 +61,42 @@ namespace Alembic.Test.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {&quot;Id&quot;: &quot;1&quot;}.
+        /// </summary>
+        internal static string GetContainer_ReturnInvalidPayload {
+            get {
+                return ResourceManager.GetString("GetContainer_ReturnInvalidPayload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [{&quot;Id&quot;:&quot;4acb75f9185f058840a03037b223912c2b7ca05af8f7c5ba6fc3516765b990c7&quot;,&quot;Names&quot;:[&quot;/alembic&quot;],&quot;Image&quot;:&quot;mirzamerdovic/alembic:1.0.0&quot;,&quot;ImageID&quot;:&quot;sha256:4bc952a7ce156496fa02e77bc7384a849060b6ee3fb3f42c3e5e1ed5ab0a9cbb&quot;,&quot;Command&quot;:&quot;dotnet Alembic.dll&quot;,&quot;Created&quot;:1613225882,&quot;Ports&quot;:[],&quot;Labels&quot;:{&quot;com.docker.compose.config-hash&quot;:&quot;41f3b2713f90d12a428e05f78d9e8e34073219418067e8d983af5f647beb50be&quot;,&quot;com.docker.compose.container-number&quot;:&quot;1&quot;,&quot;com.docker.compose.oneoff&quot;:&quot;False&quot;,&quot;com.docker.compose.project&quot;:&quot;alembic&quot;,&quot;com. [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GetContainer_ReturnTwoContainers {
+            get {
+                return ResourceManager.GetString("GetContainer_ReturnTwoContainers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 4acb75f9185f058840a03037b223912c2b7ca05af8f7c5ba6fc3516765b990c7.
+        /// </summary>
+        internal static string GetContainer_ReturnTwoContainers_ContainerId_1 {
+            get {
+                return ResourceManager.GetString("GetContainer_ReturnTwoContainers_ContainerId_1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to c842f638b2374a5993e7088f99023e9b0d0543b0aaeb82b137db302e49b4a112.
+        /// </summary>
+        internal static string GetContainer_ReturnTwoContainers_ContainerId_2 {
+            get {
+                return ResourceManager.GetString("GetContainer_ReturnTwoContainers_ContainerId_2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {&quot;Id&quot;:&quot;bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0&quot;,&quot;Created&quot;:&quot;2021-02-11T21:41:35.2645907Z&quot;,&quot;Path&quot;:&quot;/opt/mssql/bin/sqlservr&quot;,&quot;Args&quot;:[],&quot;State&quot;:{&quot;Status&quot;:&quot;running&quot;,&quot;Running&quot;:true,&quot;Paused&quot;:false,&quot;Restarting&quot;:false,&quot;OOMKilled&quot;:false,&quot;Dead&quot;:false,&quot;Pid&quot;:31918,&quot;ExitCode&quot;:0,&quot;Error&quot;:&quot;&quot;,&quot;StartedAt&quot;:&quot;2021-02-11T21:41:35.8078915Z&quot;,&quot;FinishedAt&quot;:&quot;0001-01-01T00:00:00Z&quot;,&quot;Health&quot;:{&quot;Status&quot;:&quot;healthy&quot;,&quot;FailingStreak&quot;:0,&quot;Log&quot;:[{&quot;Start&quot;:&quot;2021-02-11T21:42:09.4376587Z&quot;,&quot;End&quot;:&quot;2021-02-11T21:42:09.5446493Z&quot;,&quot; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Healthy_InspectContainer {
@@ -75,6 +111,15 @@ namespace Alembic.Test.Properties {
         internal static string Healthy_InspectContainer_Id {
             get {
                 return ResourceManager.GetString("Healthy_InspectContainer_Id", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pong.
+        /// </summary>
+        internal static string Ping_ReturnOk {
+            get {
+                return ResourceManager.GetString("Ping_ReturnOk", resourceCulture);
             }
         }
         

@@ -1,5 +1,6 @@
 using Alembic.Common.Services;
 using Alembic.Docker;
+using Alembic.Test.Properties;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
@@ -17,9 +18,9 @@ namespace Alembic.Test
 {
     public class GetContainerTests
     {
-        private static readonly Func<(HttpStatusCode, string)> ReturnOk = () => (HttpStatusCode.OK, @"[{'id': '1323d', 'Status': 'Healthy', 'Something': 'Somewhere'}]");
-        private static readonly Func<(HttpStatusCode, string)> ReturnRequestTimeout = () => (HttpStatusCode.RequestTimeout, "");
-        private static readonly Func<(HttpStatusCode, string)> ReturnInvalidPayload = () => (HttpStatusCode.OK, @"{'id': 'asds221'}");
+        private static readonly Func<(HttpStatusCode, string)> ReturnTwoContainers = () => (HttpStatusCode.OK, Resources.GetContainer_ReturnTwoContainers);
+        private static readonly Func<(HttpStatusCode, string)> ReturnRequestTimeout = () => (HttpStatusCode.RequestTimeout, string.Empty);
+        private static readonly Func<(HttpStatusCode, string)> ReturnInvalidPayload = () => (HttpStatusCode.OK, Resources.GetContainer_ReturnInvalidPayload);
 
         private static readonly Func<Func<(HttpStatusCode, string)>, IDockerClient> BuildDockerClientMock =
             (Func<(HttpStatusCode, string)> getResponse) =>
@@ -44,15 +45,19 @@ namespace Alembic.Test
         [Fact]
         public async Task Should_Get_One_Container()
         {
-            var api = new DockerApi(BuildDockerClientMock(ReturnOk), BuildReporterMock(), NullLogger<DockerApi>.Instance);
+            var api = new DockerApi(BuildDockerClientMock(ReturnTwoContainers), BuildReporterMock(), NullLogger<DockerApi>.Instance);
 
             var containers = await api.GetContainers(CancellationToken.None);
 
-            Assert.Single(containers);
+            Assert.Equal(2, containers.Count());
 
             var container = containers.First();
-            Assert.Equal("1323d", container.Id);
-            Assert.Equal("Healthy", container.Status);
+            var container2 = containers.Last();
+
+            Assert.Equal(Resources.GetContainer_ReturnTwoContainers_ContainerId_1, container.Id);
+            Assert.Equal(Resources.GetContainer_ReturnTwoContainers_ContainerId_2, container2.Id);
+            Assert.False(string.IsNullOrWhiteSpace(container.Status));
+            Assert.False(string.IsNullOrWhiteSpace(container2.Status));
         }
 
         [Fact]

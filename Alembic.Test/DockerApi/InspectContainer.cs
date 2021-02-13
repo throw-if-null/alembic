@@ -19,7 +19,7 @@ namespace Alembic.Test
     {
         private static readonly Func<(HttpStatusCode, string)> ReturnHealthy = () => (HttpStatusCode.OK, Resources.Healthy_InspectContainer);
         private static readonly Func<(HttpStatusCode, string)> ReturnUnhealthy = () => (HttpStatusCode.OK, Resources.Unhealthy_InspectContainer);
-        private static readonly Func<(HttpStatusCode, string)> ReturnRequestTimeout = () => (HttpStatusCode.NotFound, "");
+        private static readonly Func<(HttpStatusCode, string)> ReturnNotFound = () => (HttpStatusCode.NotFound, string.Empty);
 
         private static readonly Func<string, Func<(HttpStatusCode, string)>, IDockerClient> BuildDockerClientMock =
             (string id, Func<(HttpStatusCode, string)> getResponse) =>
@@ -75,7 +75,7 @@ namespace Alembic.Test
         public async Task Should_Return_Null_When_COntainer_Is_Not_Found()
         {
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Unhealthy_InspectContainer_Id, ReturnRequestTimeout),
+                BuildDockerClientMock(Resources.Unhealthy_InspectContainer_Id, ReturnNotFound),
                 BuildReporterMock(),
                 NullLogger<DockerApi>.Instance);
 

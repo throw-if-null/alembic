@@ -37,12 +37,12 @@ namespace Alembic.Docker
 
         public async Task<string> Ping(CancellationToken cancellation)
         {
-            (HttpStatusCode code, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Get, "_ping", null, null, Timeout, cancellation);
+            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Get, "_ping", null, null, Timeout, cancellation);
 
-            if (code == HttpStatusCode.OK)
+            if (status == HttpStatusCode.OK)
                 return body;
 
-            throw new DockerApiException(code, "Unable to ping Docker server");
+            throw new DockerApiException(status, "Unable to ping Docker server");
         }
 
         public async Task<IEnumerable<ContainerInfo>> GetContainers(CancellationToken cancellation)
@@ -83,18 +83,20 @@ namespace Alembic.Docker
 
         public async Task<HttpStatusCode> KillContainer(string id, CancellationToken cancellation)
         {
-            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/kill ", null, null, Timeout, cancellation);
-
             var container = await InspectContainer(id, cancellation);
+
+            if (container == null)
+                return HttpStatusCode.NotFound;
+
+            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/kill", null, null, Timeout, cancellation);
 
             if (status == HttpStatusCode.NoContent)
             {
                 await _reporter.Send(CreateKillMesage("Container killed successfully.", container), cancellation);
 
-                if (!_containerRetries.TryRemove(id, out int _))
-                    _logger.LogError($"Failed to remove container: {id} from the cache.");
-
                 _logger.LogInformation($"Container: {id} killed successfully.");
+
+                _ = _containerRetries.TryRemove(id, out int _);
             }
             else
             {
@@ -142,17 +144,21 @@ namespace Alembic.Docker
 
         private async Task<HttpStatusCode> RestartContainer(string id, string reportMessage, CancellationToken cancellation)
         {
-            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/restart ", null, null, Timeout, cancellation);
             var container = await InspectContainer(id, cancellation);
+
+            if (container == null)
+                return HttpStatusCode.NotFound;
+
+            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/restart", null, null, Timeout, cancellation);
+
+            if (status == HttpStatusCode.NoContent)
+                _logger.LogInformation($"Container: {id} restarted successfully.");
+            else
+                _logger.LogWarning($"Failed to restart container: {id}. Response status: {status} content: {body}");
 
             object slackMessage = status == HttpStatusCode.NoContent
                 ? CreateRestartMessage(reportMessage, container)
                 : CreateRestartMessage($"Failed to restart container. Response status: {status}", container);
-
-            if (status == HttpStatusCode.NoContent)
-                _logger.LogInformation($"Contrainer: {id} restarted successfully.");
-            else
-                _logger.LogWarning($"Failed to restart container: {id}. Response status: {status} body: {body}");
 
             await _reporter.Send(slackMessage, cancellation);
 
