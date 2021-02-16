@@ -22,7 +22,15 @@ namespace Alembic.Docker
         private static readonly TimeSpan Timeout = TimeSpan.FromMinutes(2);
         private static readonly IEnumerable<ApiResponseErrorHandlingDelegate> NoErrorHandlers = Enumerable.Empty<ApiResponseErrorHandlingDelegate>();
 
-        private ConcurrentDictionary<string, int> _containerRetries = new ConcurrentDictionary<string, int>();
+        private static readonly Action<object?> Callback = delegate (object? stream)
+        {
+            if (stream == null)
+                return;
+
+            ((IDisposable)stream).Dispose();
+        };
+
+        protected internal ConcurrentDictionary<string, int> _containerRetries = new ConcurrentDictionary<string, int>();
 
         private readonly IDockerClient _client;
         private readonly IReporter _reporter;
@@ -107,9 +115,20 @@ namespace Alembic.Docker
             return status;
         }
 
-        public async Task MonitorHealthStatus(CancellationToken cancellation, int restartCount = 3, bool killUnhealthyContainer = true)
+        public async Task MonitorHealthStatus(
+            CancellationToken cancellation,
+            int restartCount = 3,
+            bool killUnhealthyContainer = true,
+            Action<UnhealthyStatusActionReport> onUnheathyStatusReceived = null)
         {
-            var stream = await _client.MakeRequestForStreamAsync(NoErrorHandlers, HttpMethod.Get, "events", @"filters=%7B%22event%22%3A%7B%22health_status%22%3Atrue%7D%7D", null, Timeout, cancellation);
+            var stream = await _client.MakeRequestForStreamAsync(
+                NoErrorHandlers,
+                HttpMethod.Get,
+                "events",
+                @"filters=%7B%22event%22%3A%7B%22health_status%22%3Atrue%7D%7D",
+                null,
+                Timeout,
+                cancellation);
 
             using (cancellation.Register(Callback, stream, false))
             {
@@ -120,24 +139,43 @@ namespace Alembic.Docker
                 {
                     var containerHealth = JsonConvert.DeserializeObject<ContainerInfo>(line);
 
-                    if (containerHealth.Status.Split(":")[1].Trim() == "unhealthy")
+                    var report = new UnhealthyStatusActionReport(0, false, false);
+
+                    if (containerHealth.Status.Split(":")[1].Trim().ToLowerInvariant() != "unhealthy")
+                        continue;
+
+                    if (_containerRetries.TryGetValue(containerHealth.Id, out var _))
+                        _containerRetries[containerHealth.Id] = _containerRetries[containerHealth.Id] + 1;
+                    else
+                        _containerRetries[containerHealth.Id] = 1;
+
+                    report.RestartCount = _containerRetries[containerHealth.Id];
+
+                    if (_containerRetries[containerHealth.Id] <= restartCount)
                     {
-                        if (_containerRetries.TryGetValue(containerHealth.Id, out var _))
-                            _containerRetries[containerHealth.Id] = _containerRetries[containerHealth.Id] + 1;
-                        else
-                            _containerRetries[containerHealth.Id] = 1;
+                        var restartStatus = await RestartContainer(
+                            containerHealth.Id,
+                            $"Container restart number: {_containerRetries[containerHealth.Id]} of {restartCount}",
+                            cancellation);
 
-                        if (_containerRetries[containerHealth.Id] > restartCount)
-                        {
-                            if (!killUnhealthyContainer)
-                                continue;
+                        report.Restarted = restartStatus == HttpStatusCode.NoContent;
 
-                            await KillContainer(containerHealth.Id, cancellation);
-                            continue;
-                        }
+                        onUnheathyStatusReceived?.Invoke(report);
 
-                        await RestartContainer(containerHealth.Id, $"Container restart number: {_containerRetries[containerHealth.Id]} of {restartCount}", cancellation);
+                        continue;
                     }
+
+                    if (!killUnhealthyContainer)
+                    {
+                        onUnheathyStatusReceived?.Invoke(report);
+
+                        continue;
+                    }
+
+                    var killStatus = await KillContainer(containerHealth.Id, cancellation);
+                    report.Killed = killStatus == HttpStatusCode.NoContent;
+
+                    onUnheathyStatusReceived?.Invoke(report);
                 }
             }
         }
@@ -181,8 +219,8 @@ namespace Alembic.Docker
             var fields = new List<object>
             {
                 new { title = "Container id", value = $"`{container.Id}`"},
-                new { title = "Container number", value = $"`{container.ExtractContainerNumberLabelValue()}`"},
-                new { title = "Service", value = $"`{container.ExtractServiceLabelValue()}`"},
+                new { title = "Container number", value = $"`{container.Config.Labels.ExtractContainerNumberLabelValue()}`"},
+                new { title = "Service", value = $"`{container.Config.Labels.ExtractServiceLabelValue()}`"},
                 new { title = "Image", value = $"`{container.Image}`" },
                 new { title = "Status", value = $"`{container.State.Status}`"},
                 new { title = "Exit code", value = $"`{container.State.ExitCode}`" },
@@ -221,13 +259,5 @@ namespace Alembic.Docker
 
             return Math.Floor(difference.TotalSeconds);
         }
-
-        private static readonly Action<object?> Callback = delegate (object? stream)
-        {
-            if (stream == null)
-                return;
-
-            ((IDisposable)stream).Dispose();
-        };
     }
 }

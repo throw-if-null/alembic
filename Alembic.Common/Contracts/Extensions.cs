@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Alembic.Common.Contracts
 {
@@ -9,31 +10,28 @@ namespace Alembic.Common.Contracts
         private const string AutoHeal = "autoheal";
         private const string NotSet = "NotSet";
 
-        public static string ExtractServiceLabelValue(this Container container)
+        public static string ExtractServiceLabelValue(this Dictionary<string, string> labels)
         {
-            return ExtractLabelValue(container, ServiceNameKey);
+            return ExtractLabelValue(labels, ServiceNameKey);
         }
 
-        public static string ExtractContainerNumberLabelValue(this Container container)
+        public static string ExtractContainerNumberLabelValue(this Dictionary<string, string> labels)
         {
-            return ExtractLabelValue(container, ContainerNumberKey);
+            return ExtractLabelValue(labels, ContainerNumberKey);
         }
 
-        public static bool ExtractAutoHealLabelValue(this Container container)
+        public static bool ExtractAutoHealLabelValue(this Dictionary<string, string> labels)
         {
-            var value = ExtractLabelValue(container, AutoHeal);
+            var value = ExtractLabelValue(labels, AutoHeal);
 
             return bool.TryParse(value, out var autoHeal) && autoHeal;
         }
 
-        private static string ExtractLabelValue(Container container, string name)
+        public static string ExtractLabelValue(Dictionary<string, string> labels, string name)
         {
-            _ = container ?? throw new ArgumentNullException(nameof(container));
+            _ = labels ?? throw new ArgumentNullException(nameof(labels));
 
-            if (container.Config == null)
-                return NotSet;
-
-            if (!container.Config.Labels.TryGetValue(name, out var value))
+            if (!labels.TryGetValue(name, out var value))
                 return NotSet;
 
             return value;

@@ -44,7 +44,7 @@ namespace Alembic.Test
         public async Task Should_Ping()
         {
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Healthy_InspectContainer_Id, ReturnPong),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnPong),
                 BuildReporterMock(),
                 NullLogger<DockerApi>.Instance);
 
@@ -56,7 +56,7 @@ namespace Alembic.Test
         public async Task Should_Throw_DockerApiException()
         {
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Healthy_InspectContainer_Id, ReturnRequestTimeout),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnRequestTimeout),
                 BuildReporterMock(),
                 NullLogger<DockerApi>.Instance);
 

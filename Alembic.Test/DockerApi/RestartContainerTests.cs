@@ -17,7 +17,7 @@ namespace Alembic.Test
 {
     public class RestartContainerTests
     {
-        private static readonly Func<(HttpStatusCode, string)> ReturnHealthy = () => (HttpStatusCode.OK, Resources.Healthy_InspectContainer);
+        private static readonly Func<(HttpStatusCode, string)> ReturnHealthy = () => (HttpStatusCode.OK, Resources.InspectContainer_ReturnHealthy);
         private static readonly Func<(HttpStatusCode, string)> ReturnNoContent = () => (HttpStatusCode.NoContent, string.Empty);
         private static readonly Func<(HttpStatusCode, string)> ReturnNotFound = () => (HttpStatusCode.NotFound, string.Empty);
         private static readonly Func<(HttpStatusCode, string)> ReturnRequestTimeout = () => (HttpStatusCode.RequestTimeout, string.Empty);
@@ -59,11 +59,11 @@ namespace Alembic.Test
             var loggerMock = new Mock<ILogger<DockerApi>>();
 
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Healthy_InspectContainer_Id, ReturnNoContent, ReturnHealthy),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnNoContent, ReturnHealthy),
                 BuildReporterMock(),
                 loggerMock.Object);
 
-            var status = await api.RestartContainer(Resources.Healthy_InspectContainer_Id, CancellationToken.None);
+            var status = await api.RestartContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
 
             Assert.Equal(HttpStatusCode.NoContent, status);
 
@@ -77,7 +77,7 @@ namespace Alembic.Test
             Assert.Single(formattedLogValues);
 
             var formattedLogValue = formattedLogValues.First();
-            Assert.Equal($"Container: {Resources.Healthy_InspectContainer_Id} restarted successfully.", formattedLogValue.Value);
+            Assert.Equal($"Container: {Resources.InspectContainer_ReturnHealthy_Id} restarted successfully.", formattedLogValue.Value);
         }
 
         [Fact]
@@ -86,11 +86,11 @@ namespace Alembic.Test
             var loggerMock = new Mock<ILogger<DockerApi>>();
 
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Healthy_InspectContainer_Id, ReturnRequestTimeout, ReturnHealthy),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnRequestTimeout, ReturnHealthy),
                 BuildReporterMock(),
                 loggerMock.Object);
 
-            var status = await api.RestartContainer(Resources.Healthy_InspectContainer_Id, CancellationToken.None);
+            var status = await api.RestartContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
 
             Assert.Equal(HttpStatusCode.RequestTimeout, status);
 
@@ -104,7 +104,7 @@ namespace Alembic.Test
             Assert.Single(formattedLogValues);
 
             var formattedLogValue = formattedLogValues.First();
-            Assert.Equal($"Failed to restart container: {Resources.Healthy_InspectContainer_Id}. Response status: {status} content: ", formattedLogValue.Value);
+            Assert.Equal($"Failed to restart container: {Resources.InspectContainer_ReturnHealthy_Id}. Response status: {status} content: ", formattedLogValue.Value);
         }
 
         [Fact]
@@ -113,11 +113,11 @@ namespace Alembic.Test
             var loggerMock = new Mock<ILogger<DockerApi>>();
 
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Healthy_InspectContainer_Id, null, ReturnNotFound),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, null, ReturnNotFound),
                 BuildReporterMock(),
                 loggerMock.Object);
 
-            var status = await api.RestartContainer(Resources.Healthy_InspectContainer_Id, CancellationToken.None);
+            var status = await api.RestartContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
 
             Assert.Equal(HttpStatusCode.NotFound, status);
         }

@@ -41,18 +41,16 @@ namespace Alembic.Services
 
                 try
                 {
-                    var ctn = await _api.InspectContainer(container.Id, cancellation);
-
-                    var serviceName = ctn.ExtractServiceLabelValue();
-                    var containerNumber = ctn.ExtractContainerNumberLabelValue();
-                    var autoHeal = ctn.ExtractAutoHealLabelValue();
+                    var serviceName = container.Labels.ExtractServiceLabelValue();
+                    var containerNumber = container.Labels.ExtractContainerNumberLabelValue();
+                    var autoHeal = container.Labels.ExtractAutoHealLabelValue();
 
                     _logger.LogInformation($"Service: {serviceName} Container Number: {containerNumber} is unhealthy and it will be restarted: {autoHeal}");
 
                     if (!autoHeal)
                         continue;
 
-                    var status = await _api.RestartContainer(ctn.Id, cancellation);
+                    _ = await _api.RestartContainer(container.Id, cancellation);
                 }
                 catch (Exception ex)
                 {

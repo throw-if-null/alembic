@@ -58,12 +58,12 @@ namespace Alembic.Docker.Client
             {
                 case "npipe":
                     var segments = uri.Segments;
+
                     if (segments.Length != 3 || !segments[1].Equals("pipe/", StringComparison.OrdinalIgnoreCase))
-                    {
                         throw new ArgumentException($"{baseUrl} is not a valid npipe URI");
-                    }
 
                     var serverName = uri.Host;
+
                     if (string.Equals(serverName, "localhost", StringComparison.OrdinalIgnoreCase))
                     {
                         // npipe schemes dont work with npipe://localhost/... and need npipe://./... so fix that for a client here.
@@ -86,13 +86,14 @@ namespace Alembic.Docker.Client
                     break;
 
                 case "unix":
-                    var pipeString = uri.LocalPath;
                     handler = new ManagedHandler(async (string host, int port, CancellationToken cancellationToken) =>
                     {
                         var sock = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-                        await sock.ConnectAsync(new UnixDomainSocketEndPoint(pipeString));
+                        await sock.ConnectAsync(new UnixDomainSocketEndPoint(uri.LocalPath), cancellationToken: cancellationToken);
+
                         return sock;
                     });
+
                     uri = new UriBuilder("http", uri.Segments.Last()).Uri;
 
                     break;

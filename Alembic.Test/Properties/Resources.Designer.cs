@@ -99,18 +99,63 @@ namespace Alembic.Test.Properties {
         /// <summary>
         ///   Looks up a localized string similar to {&quot;Id&quot;:&quot;bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0&quot;,&quot;Created&quot;:&quot;2021-02-11T21:41:35.2645907Z&quot;,&quot;Path&quot;:&quot;/opt/mssql/bin/sqlservr&quot;,&quot;Args&quot;:[],&quot;State&quot;:{&quot;Status&quot;:&quot;running&quot;,&quot;Running&quot;:true,&quot;Paused&quot;:false,&quot;Restarting&quot;:false,&quot;OOMKilled&quot;:false,&quot;Dead&quot;:false,&quot;Pid&quot;:31918,&quot;ExitCode&quot;:0,&quot;Error&quot;:&quot;&quot;,&quot;StartedAt&quot;:&quot;2021-02-11T21:41:35.8078915Z&quot;,&quot;FinishedAt&quot;:&quot;0001-01-01T00:00:00Z&quot;,&quot;Health&quot;:{&quot;Status&quot;:&quot;healthy&quot;,&quot;FailingStreak&quot;:0,&quot;Log&quot;:[{&quot;Start&quot;:&quot;2021-02-11T21:42:09.4376587Z&quot;,&quot;End&quot;:&quot;2021-02-11T21:42:09.5446493Z&quot;,&quot; [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string Healthy_InspectContainer {
+        internal static string InspectContainer_ReturnHealthy {
             get {
-                return ResourceManager.GetString("Healthy_InspectContainer", resourceCulture);
+                return ResourceManager.GetString("InspectContainer_ReturnHealthy", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to bbd92c776523bc5e8cfcd1ad8b52cb5f7f22421f59ea2659ac131f2c5ad140d0.
         /// </summary>
-        internal static string Healthy_InspectContainer_Id {
+        internal static string InspectContainer_ReturnHealthy_Id {
             get {
-                return ResourceManager.GetString("Healthy_InspectContainer_Id", resourceCulture);
+                return ResourceManager.GetString("InspectContainer_ReturnHealthy_Id", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;Id&quot;:&quot;0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711&quot;,&quot;Created&quot;:&quot;2021-02-11T21:23:11.0504465Z&quot;,&quot;Path&quot;:&quot;docker-entrypoint.sh&quot;,&quot;Args&quot;:[&quot;sh&quot;,&quot;-c&quot;,&quot;mongod --bind_ip 0.0.0.0 --port 80&quot;],&quot;State&quot;:{&quot;Status&quot;:&quot;running&quot;,&quot;Running&quot;:true,&quot;Paused&quot;:false,&quot;Restarting&quot;:false,&quot;OOMKilled&quot;:false,&quot;Dead&quot;:false,&quot;Pid&quot;:25886,&quot;ExitCode&quot;:0,&quot;Error&quot;:&quot;&quot;,&quot;StartedAt&quot;:&quot;2021-02-11T21:36:46.897192Z&quot;,&quot;FinishedAt&quot;:&quot;2021-02-11T21:36:46.0908344Z&quot;,&quot;Health&quot;:{&quot;Status&quot;:&quot;starting&quot;,&quot;FailingStreak&quot;:2,&quot;Log&quot;:[{&quot;Start&quot;:&quot;2021-02-11T21:36: [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string InspectContainer_ReturnUnhealthy {
+            get {
+                return ResourceManager.GetString("InspectContainer_ReturnUnhealthy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711.
+        /// </summary>
+        internal static string InspectContainer_ReturnUnhealthy_Id {
+            get {
+                return ResourceManager.GetString("InspectContainer_ReturnUnhealthy_Id", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;status&quot;:&quot;health_status: healthy&quot;,&quot;id&quot;:&quot;0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711&quot;,&quot;from&quot;:&quot;mongo:latest&quot;,&quot;Type&quot;:&quot;container&quot;,&quot;Action&quot;:&quot;health_status: unhealthy&quot;,&quot;Actor&quot;:{&quot;ID&quot;:&quot;0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711&quot;,&quot;Attributes&quot;:{&quot;autoheal&quot;:&quot;true&quot;,&quot;com.docker.compose.config-hash&quot;:&quot;3c6ff00d43678d363a09684bc59ea7345977ed77a247dab2a688740190fda366&quot;,&quot;com.docker.compose.container-number&quot;:&quot;2&quot;,&quot;com.docker.compose.oneoff&quot;:&quot;False&quot;,&quot;com.docker.compose.project&quot;:&quot;alembic [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string MonitorHealthStatus_Healthy {
+            get {
+                return ResourceManager.GetString("MonitorHealthStatus_Healthy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;status&quot;:&quot;health_status: unhealthy&quot;,&quot;id&quot;:&quot;0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711&quot;,&quot;from&quot;:&quot;mongo:latest&quot;,&quot;Type&quot;:&quot;container&quot;,&quot;Action&quot;:&quot;health_status: unhealthy&quot;,&quot;Actor&quot;:{&quot;ID&quot;:&quot;0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711&quot;,&quot;Attributes&quot;:{&quot;autoheal&quot;:&quot;true&quot;,&quot;com.docker.compose.config-hash&quot;:&quot;3c6ff00d43678d363a09684bc59ea7345977ed77a247dab2a688740190fda366&quot;,&quot;com.docker.compose.container-number&quot;:&quot;2&quot;,&quot;com.docker.compose.oneoff&quot;:&quot;False&quot;,&quot;com.docker.compose.project&quot;:&quot;alemb [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string MonitorHealthStatus_Unhealthy {
+            get {
+                return ResourceManager.GetString("MonitorHealthStatus_Unhealthy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;status&quot;:&quot;health_status: unhealthy&quot;,&quot;id&quot;:&quot;0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711&quot;,&quot;from&quot;:&quot;mongo:latest&quot;,&quot;Type&quot;:&quot;container&quot;,&quot;Action&quot;:&quot;health_status: unhealthy&quot;,&quot;Actor&quot;:{&quot;ID&quot;:&quot;0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711&quot;,&quot;Attributes&quot;:{&quot;autoheal&quot;:&quot;true&quot;,&quot;com.docker.compose.config-hash&quot;:&quot;3c6ff00d43678d363a09684bc59ea7345977ed77a247dab2a688740190fda366&quot;,&quot;com.docker.compose.container-number&quot;:&quot;2&quot;,&quot;com.docker.compose.oneoff&quot;:&quot;False&quot;,&quot;com.docker.compose.project&quot;:&quot;alemb [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string MonitorHealthStatus_Unhealthy_ThreeTimes {
+            get {
+                return ResourceManager.GetString("MonitorHealthStatus_Unhealthy_ThreeTimes", resourceCulture);
             }
         }
         
@@ -120,24 +165,6 @@ namespace Alembic.Test.Properties {
         internal static string Ping_ReturnOk {
             get {
                 return ResourceManager.GetString("Ping_ReturnOk", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {&quot;Id&quot;:&quot;0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711&quot;,&quot;Created&quot;:&quot;2021-02-11T21:23:11.0504465Z&quot;,&quot;Path&quot;:&quot;docker-entrypoint.sh&quot;,&quot;Args&quot;:[&quot;sh&quot;,&quot;-c&quot;,&quot;mongod --bind_ip 0.0.0.0 --port 80&quot;],&quot;State&quot;:{&quot;Status&quot;:&quot;running&quot;,&quot;Running&quot;:true,&quot;Paused&quot;:false,&quot;Restarting&quot;:false,&quot;OOMKilled&quot;:false,&quot;Dead&quot;:false,&quot;Pid&quot;:25886,&quot;ExitCode&quot;:0,&quot;Error&quot;:&quot;&quot;,&quot;StartedAt&quot;:&quot;2021-02-11T21:36:46.897192Z&quot;,&quot;FinishedAt&quot;:&quot;2021-02-11T21:36:46.0908344Z&quot;,&quot;Health&quot;:{&quot;Status&quot;:&quot;starting&quot;,&quot;FailingStreak&quot;:2,&quot;Log&quot;:[{&quot;Start&quot;:&quot;2021-02-11T21:36: [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string Unhealthy_InspectContainer {
-            get {
-                return ResourceManager.GetString("Unhealthy_InspectContainer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 0051a16c5acf7a8b0615175111a805a244eeb01d19178ca30b006e715d420711.
-        /// </summary>
-        internal static string Unhealthy_InspectContainer_Id {
-            get {
-                return ResourceManager.GetString("Unhealthy_InspectContainer_Id", resourceCulture);
             }
         }
     }

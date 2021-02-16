@@ -1,4 +1,5 @@
 ﻿using Alembic.Common.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
@@ -18,6 +19,6 @@ namespace Alembic.Common.Services
 
         Task<HttpStatusCode> KillContainer(string id, CancellationToken cancellation);
 
-        Task MonitorHealthStatus(CancellationToken cancellation, int restartCount = 3, bool killUnhealthyContainer = true);
+        Task MonitorHealthStatus(CancellationToken cancellation, int restartCount = 3, bool killUnhealthyContainer = true, Action<UnhealthyStatusActionReport> onUnheathyStatusReceived = null);
     }
 }

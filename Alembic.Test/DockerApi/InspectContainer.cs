@@ -17,8 +17,8 @@ namespace Alembic.Test
 {
     public class InspectContainer
     {
-        private static readonly Func<(HttpStatusCode, string)> ReturnHealthy = () => (HttpStatusCode.OK, Resources.Healthy_InspectContainer);
-        private static readonly Func<(HttpStatusCode, string)> ReturnUnhealthy = () => (HttpStatusCode.OK, Resources.Unhealthy_InspectContainer);
+        private static readonly Func<(HttpStatusCode, string)> ReturnHealthy = () => (HttpStatusCode.OK, Resources.InspectContainer_ReturnHealthy);
+        private static readonly Func<(HttpStatusCode, string)> ReturnUnhealthy = () => (HttpStatusCode.OK, Resources.InspectContainer_ReturnUnhealthy);
         private static readonly Func<(HttpStatusCode, string)> ReturnNotFound = () => (HttpStatusCode.NotFound, string.Empty);
 
         private static readonly Func<string, Func<(HttpStatusCode, string)>, IDockerClient> BuildDockerClientMock =
@@ -45,13 +45,13 @@ namespace Alembic.Test
         public async Task Should_Inspect_Healthy_Container()
         {
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Healthy_InspectContainer_Id, ReturnHealthy),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnHealthy),
                 BuildReporterMock(),
                 NullLogger<DockerApi>.Instance);
 
-            var container = await api.InspectContainer(Resources.Healthy_InspectContainer_Id, CancellationToken.None);
+            var container = await api.InspectContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
 
-            Assert.Equal(Resources.Healthy_InspectContainer_Id, container.Id);
+            Assert.Equal(Resources.InspectContainer_ReturnHealthy_Id, container.Id);
             Assert.Equal("healthy", container.State.Health.Status);
         }
 
@@ -59,13 +59,13 @@ namespace Alembic.Test
         public async Task Should_Inspect_Unhealthy_Container()
         {
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Unhealthy_InspectContainer_Id, ReturnUnhealthy),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnUnhealthy_Id, ReturnUnhealthy),
                 BuildReporterMock(),
                 NullLogger<DockerApi>.Instance);
 
-            var container = await api.InspectContainer(Resources.Unhealthy_InspectContainer_Id, CancellationToken.None);
+            var container = await api.InspectContainer(Resources.InspectContainer_ReturnUnhealthy_Id, CancellationToken.None);
 
-            Assert.Equal(Resources.Unhealthy_InspectContainer_Id, container.Id);
+            Assert.Equal(Resources.InspectContainer_ReturnUnhealthy_Id, container.Id);
             Assert.Equal("starting", container.State.Health.Status);
             Assert.Equal(2, container.State.Health.FailingStreak);
             Assert.True(container.State.Health.Logs.Length > 1);
@@ -75,11 +75,11 @@ namespace Alembic.Test
         public async Task Should_Return_Null_When_COntainer_Is_Not_Found()
         {
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Unhealthy_InspectContainer_Id, ReturnNotFound),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnUnhealthy_Id, ReturnNotFound),
                 BuildReporterMock(),
                 NullLogger<DockerApi>.Instance);
 
-            var container = await api.InspectContainer(Resources.Unhealthy_InspectContainer_Id, CancellationToken.None);
+            var container = await api.InspectContainer(Resources.InspectContainer_ReturnUnhealthy_Id, CancellationToken.None);
             Assert.Null(container);
         }
     }

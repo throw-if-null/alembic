@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -18,13 +17,13 @@ namespace Alembic.Test
 {
     public class KillContainerTests
     {
-        private static readonly Func<(HttpStatusCode, string)> ReturnHealthy = () => (HttpStatusCode.OK, Resources.Healthy_InspectContainer);
+        private static readonly Func<(HttpStatusCode, string)> ReturnHealthy = () => (HttpStatusCode.OK, Resources.InspectContainer_ReturnHealthy);
         private static readonly Func<(HttpStatusCode, string)> ReturnNoContent = () => (HttpStatusCode.NoContent, string.Empty);
         private static readonly Func<(HttpStatusCode, string)> ReturnNotFound = () => (HttpStatusCode.NotFound, string.Empty);
         private static readonly Func<(HttpStatusCode, string)> ReturnRequestTimeout = () => (HttpStatusCode.RequestTimeout, string.Empty);
 
         private static readonly Func<string, Func<(HttpStatusCode, string)>, Func<(HttpStatusCode, string)>, IDockerClient> BuildDockerClientMock =
-            (string id, Func<(HttpStatusCode, string)> restartResponse, Func<(HttpStatusCode, string)> inspectResponse) =>
+            (string id, Func<(HttpStatusCode, string)> killResponse, Func<(HttpStatusCode, string)> inspectResponse) =>
             {
                 var mock = new Mock<IDockerClient>();
                 mock
@@ -36,7 +35,7 @@ namespace Alembic.Test
                         It.Is<Dictionary<string, string>>(x => x == null),
                         It.Is<TimeSpan>(x => x == TimeSpan.FromMinutes(2)),
                         It.Is<CancellationToken>(x => x == CancellationToken.None)))
-                    .ReturnsAsync(restartResponse);
+                    .ReturnsAsync(killResponse);
 
                 mock
                     .Setup(x => x.MakeRequestAsync(
@@ -60,11 +59,11 @@ namespace Alembic.Test
             var loggerMock = new Mock<ILogger<DockerApi>>();
 
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Healthy_InspectContainer_Id, ReturnNoContent, ReturnHealthy),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnNoContent, ReturnHealthy),
                 BuildReporterMock(),
                 loggerMock.Object);
 
-            var status = await api.KillContainer(Resources.Healthy_InspectContainer_Id, CancellationToken.None);
+            var status = await api.KillContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
 
             Assert.Equal(HttpStatusCode.NoContent, status);
 
@@ -78,7 +77,7 @@ namespace Alembic.Test
             Assert.Single(formattedLogValues);
 
             var formattedLogValue = formattedLogValues.First();
-            Assert.Equal($"Container: {Resources.Healthy_InspectContainer_Id} killed successfully.", formattedLogValue.Value);
+            Assert.Equal($"Container: {Resources.InspectContainer_ReturnHealthy_Id} killed successfully.", formattedLogValue.Value);
         }
 
         [Fact]
@@ -87,11 +86,11 @@ namespace Alembic.Test
             var loggerMock = new Mock<ILogger<DockerApi>>();
 
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Healthy_InspectContainer_Id, ReturnRequestTimeout, ReturnHealthy),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnRequestTimeout, ReturnHealthy),
                 BuildReporterMock(),
                 loggerMock.Object);
 
-            var status = await api.KillContainer(Resources.Healthy_InspectContainer_Id, CancellationToken.None);
+            var status = await api.KillContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
 
             Assert.Equal(HttpStatusCode.RequestTimeout, status);
 
@@ -105,7 +104,7 @@ namespace Alembic.Test
             Assert.Single(formattedLogValues);
 
             var formattedLogValue = formattedLogValues.First();
-            Assert.Equal($"Failed to kill container: {Resources.Healthy_InspectContainer_Id}. Response status: {status} content: ", formattedLogValue.Value);
+            Assert.Equal($"Failed to kill container: {Resources.InspectContainer_ReturnHealthy_Id}. Response status: {status} content: ", formattedLogValue.Value);
         }
 
         [Fact]
@@ -114,11 +113,11 @@ namespace Alembic.Test
             var loggerMock = new Mock<ILogger<DockerApi>>();
 
             var api = new DockerApi(
-                BuildDockerClientMock(Resources.Healthy_InspectContainer_Id, null, ReturnNotFound),
+                BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, null, ReturnNotFound),
                 BuildReporterMock(),
                 loggerMock.Object);
 
-            var status = await api.KillContainer(Resources.Healthy_InspectContainer_Id, CancellationToken.None);
+            var status = await api.KillContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
 
             Assert.Equal(HttpStatusCode.NotFound, status);
         }
