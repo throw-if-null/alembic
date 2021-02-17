@@ -85,21 +85,17 @@ namespace Alembic.Docker
             request.SetProperty("url.AddressLine", addressLine);
         }
 
-        public static T GetProperty<T>(this HttpRequestMessage request, string key)
+        private static T GetProperty<T>(this HttpRequestMessage request, string key)
         {
-            object obj;
-
-            if (request.Properties.TryGetValue(key, out obj))
-            {
-                return (T)obj;
-            }
-
-            return default;
+            return
+                request.Options.TryGetValue(new HttpRequestOptionsKey<object>(key), out object obj)
+                ? (T)obj
+                : default;
         }
 
-        public static void SetProperty<T>(this HttpRequestMessage request, string key, T value)
+        private static void SetProperty<T>(this HttpRequestMessage request, string key, T value)
         {
-            request.Properties[key] = value;
+            request.Options.Set(new HttpRequestOptionsKey<T>(key), value);
         }
     }
 }

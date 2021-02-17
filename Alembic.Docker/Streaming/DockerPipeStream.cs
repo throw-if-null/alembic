@@ -48,12 +48,7 @@ namespace Alembic.Docker.Streaming
             // The Docker daemon expects a write of zero bytes to signal the end of writes. Use native
             // calls to achieve this since CoreCLR ignores a zero-byte write.
             var overlapped = new NativeOverlapped();
-
-#if NET45
-            var handle = _event.SafeWaitHandle;
-#else
             var handle = _event.GetSafeWaitHandle();
-#endif
 
             // Set the low bit to tell Windows not to send the result of this IO to the
             // completion port.
@@ -61,13 +56,13 @@ namespace Alembic.Docker.Streaming
             if (WriteFile(_stream.SafePipeHandle, IntPtr.Zero, 0, IntPtr.Zero, ref overlapped) == 0)
             {
                 const int ERROR_IO_PENDING = 997;
+
                 if (Marshal.GetLastWin32Error() == ERROR_IO_PENDING)
                 {
                     int written;
+
                     if (GetOverlappedResult(_stream.SafePipeHandle, ref overlapped, out written, 1) == 0)
-                    {
                         Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
-                    }
                 }
                 else
                 {

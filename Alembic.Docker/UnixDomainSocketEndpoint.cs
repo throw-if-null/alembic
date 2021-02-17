@@ -25,35 +25,28 @@ namespace Alembic.Docker
         public UnixDomainSocketEndPoint(string path)
         {
             if (path == null)
-            {
                 throw new ArgumentNullException(nameof(path));
-            }
 
             _path = path;
             _encodedPath = s_pathEncoding.GetBytes(_path);
 
             if (path.Length == 0 || _encodedPath.Length > s_nativePathLength)
-            {
                 throw new ArgumentOutOfRangeException(nameof(path), path);
-            }
         }
 
         internal UnixDomainSocketEndPoint(SocketAddress socketAddress)
         {
             if (socketAddress == null)
-            {
                 throw new ArgumentNullException(nameof(socketAddress));
-            }
 
             if (socketAddress.Family != EndPointAddressFamily ||
                 socketAddress.Size > s_nativeAddressSize)
-            {
                 throw new ArgumentOutOfRangeException(nameof(socketAddress));
-            }
 
             if (socketAddress.Size > s_nativePathOffset)
             {
                 _encodedPath = new byte[socketAddress.Size - s_nativePathOffset];
+
                 for (int i = 0; i < _encodedPath.Length; i++)
                 {
                     _encodedPath[i] = socketAddress[s_nativePathOffset + i];
@@ -77,7 +70,9 @@ namespace Alembic.Docker
             {
                 result[s_nativePathOffset + index] = _encodedPath[index];
             }
-            result[s_nativePathOffset + _encodedPath.Length] = 0; // path must be null-terminated
+
+            // path must be null-terminated
+            result[s_nativePathOffset + _encodedPath.Length] = 0;
 
             return result;
         }

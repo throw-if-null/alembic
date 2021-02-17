@@ -19,9 +19,8 @@ namespace Alembic.Docker
         internal void ResolveResponseStream(bool chunked)
         {
             if (_responseStream != null)
-            {
                 throw new InvalidOperationException("Called multiple times");
-            }
+
             if (chunked)
             {
                 _responseStream = new ChunkedReadStream(_connection.Transport);
@@ -40,9 +39,7 @@ namespace Alembic.Docker
         public WriteClosableStream HijackStream()
         {
             if (_responseStream != _connection.Transport)
-            {
                 throw new InvalidOperationException("cannot hijack chunked or content length stream");
-            }
 
             return _connection.Transport;
         }
@@ -69,9 +66,7 @@ namespace Alembic.Docker
             try
             {
                 if (disposing)
-                {
                     _responseStream.Dispose();
-                }
             }
             finally
             {

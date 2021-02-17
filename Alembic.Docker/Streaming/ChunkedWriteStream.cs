@@ -70,9 +70,7 @@ namespace Alembic.Docker.Streaming
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             if (count == 0)
-            {
                 return;
-            }
 
             var chunkSize = Encoding.ASCII.GetBytes(count.ToString("x") + "\r\n");
             await _innerStream.WriteAsync(chunkSize, 0, chunkSize.Length, cancellationToken);

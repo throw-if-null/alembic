@@ -1,6 +1,7 @@
 ﻿using Alembic.Docker.Streaming;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -27,22 +28,20 @@ namespace Alembic.Docker
                 // Serialize headers & send
                 string rawRequest = SerializeRequest(request);
                 byte[] requestBytes = Encoding.ASCII.GetBytes(rawRequest);
-                await Transport.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken);
+                await Transport.WriteAsync(requestBytes.AsMemory(0, requestBytes.Length), cancellationToken);
 
                 if (request.Content != null)
                 {
                     if (request.Content.Headers.ContentLength.HasValue)
                     {
-                        await request.Content.CopyToAsync(Transport);
+                        await request.Content.CopyToAsync(Transport, cancellationToken);
                     }
                     else
                     {
                         // The length of the data is unknown. Send it in chunked mode.
-                        using (var chunkedStream = new ChunkedWriteStream(Transport))
-                        {
-                            await request.Content.CopyToAsync(chunkedStream);
-                            await chunkedStream.EndContentAsync(cancellationToken);
-                        }
+                        using var chunkedStream = new ChunkedWriteStream(Transport);
+                        await request.Content.CopyToAsync(chunkedStream);
+                        await chunkedStream.EndContentAsync(cancellationToken);
                     }
                 }
 
@@ -59,9 +58,9 @@ namespace Alembic.Docker
             }
         }
 
-        private string SerializeRequest(HttpRequestMessage request)
+        private static string SerializeRequest(HttpRequestMessage request)
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append(request.Method);
             builder.Append(' ');
             builder.Append(request.GetAddressLineProperty());
@@ -96,8 +95,9 @@ namespace Alembic.Docker
 
         private async Task<List<string>> ReadResponseLinesAsync(CancellationToken cancellationToken)
         {
-            List<string> lines = new List<string>();
+            var lines = new List<string>();
             string line = await Transport.ReadLineAsync(cancellationToken);
+
             while (line.Length > 0)
             {
                 lines.Add(line);
@@ -110,15 +110,15 @@ namespace Alembic.Docker
         private HttpResponseMessage CreateResponseMessage(List<string> responseLines)
         {
             string responseLine = responseLines.First();
+
             // HTTP/1.1 200 OK
             string[] responseLineParts = responseLine.Split(new[] { ' ' }, 3);
+
             // TODO: Verify HTTP/1.0 or 1.1.
             if (responseLineParts.Length < 2)
-            {
                 throw new HttpRequestException("Invalid response line: " + responseLine);
-            }
-            int statusCode = 0;
-            if (int.TryParse(responseLineParts[1], NumberStyles.None, CultureInfo.InvariantCulture, out statusCode))
+
+            if (int.TryParse(responseLineParts[1], NumberStyles.None, CultureInfo.InvariantCulture, out int statusCode))
             {
                 // TODO: Validate range
             }
@@ -126,11 +126,11 @@ namespace Alembic.Docker
             {
                 throw new HttpRequestException("Invalid status code: " + responseLineParts[1]);
             }
-            HttpResponseMessage response = new HttpResponseMessage((HttpStatusCode)statusCode);
+
+            var response = new HttpResponseMessage((HttpStatusCode)statusCode);
+
             if (responseLineParts.Length >= 3)
-            {
                 response.ReasonPhrase = responseLineParts[2];
-            }
 
             var content = new HttpConnectionResponseContent(this);
             response.Content = content;
@@ -138,20 +138,22 @@ namespace Alembic.Docker
             foreach (var rawHeader in responseLines.Skip(1))
             {
                 int colonOffset = rawHeader.IndexOf(':');
+
                 if (colonOffset <= 0)
-                {
                     throw new HttpRequestException("The given header line format is invalid: " + rawHeader);
-                }
+
                 string headerName = rawHeader.Substring(0, colonOffset);
                 string headerValue = rawHeader.Substring(colonOffset + 2);
                 if (!response.Headers.TryAddWithoutValidation(headerName, headerValue))
                 {
                     bool success = response.Content.Headers.TryAddWithoutValidation(headerName, headerValue);
-                    System.Diagnostics.Debug.Assert(success, "Failed to add response header: " + rawHeader);
+                    Debug.Assert(success, "Failed to add response header: " + rawHeader);
                 }
             }
+
             // After headers have been set
-            content.ResolveResponseStream(chunked: response.Headers.TransferEncodingChunked.HasValue && response.Headers.TransferEncodingChunked.Value);
+            var isChunked = response.Headers.TransferEncodingChunked.HasValue && response.Headers.TransferEncodingChunked.Value;
+            content.ResolveResponseStream(chunked: isChunked);
 
             return response;
         }
@@ -164,9 +166,7 @@ namespace Alembic.Docker
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 Transport.Dispose();
-            }
         }
     }
 }

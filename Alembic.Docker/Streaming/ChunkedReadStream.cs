@@ -88,19 +88,16 @@ namespace Alembic.Docker.Streaming
             ThrowIfDisposed();
 
             if (_done)
-            {
                 return 0;
-            }
 
             cancellationToken.ThrowIfCancellationRequested();
 
             if (_chunkBytesRemaining == 0)
             {
                 string headerLine = await _inner.ReadLineAsync(cancellationToken);
+
                 if (!long.TryParse(headerLine, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _chunkBytesRemaining))
-                {
                     throw new IOException("Invalid chunk header: " + headerLine);
-                }
             }
 
             int read = 0;
@@ -108,10 +105,9 @@ namespace Alembic.Docker.Streaming
             {
                 int toRead = (int)Math.Min(count, _chunkBytesRemaining);
                 read = await _inner.ReadAsync(buffer, offset, toRead, cancellationToken);
+
                 if (read == 0)
-                {
                     throw new EndOfStreamException();
-                }
 
                 _chunkBytesRemaining -= read;
             }
@@ -120,15 +116,12 @@ namespace Alembic.Docker.Streaming
             {
                 // End of chunk, read the terminator CRLF
                 var trailer = await _inner.ReadLineAsync(cancellationToken);
+
                 if (trailer.Length > 0)
-                {
                     throw new IOException("Invalid chunk trailer");
-                }
 
                 if (read == 0)
-                {
                     _done = true;
-                }
             }
 
             return read;
@@ -137,19 +130,15 @@ namespace Alembic.Docker.Streaming
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
-                // TODO: Sync drain with timeout if small number of bytes remaining?  This will let us re-use the connection.
                 _inner.Dispose();
-            }
+
             _disposed = true;
         }
 
         private void ThrowIfDisposed()
         {
             if (_disposed)
-            {
                 throw new ObjectDisposedException(typeof(ContentLengthReadStream).FullName);
-            }
         }
 
         public override void Write(byte[] buffer, int offset, int count)

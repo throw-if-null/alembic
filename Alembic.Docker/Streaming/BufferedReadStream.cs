@@ -27,10 +27,8 @@ namespace Alembic.Docker.Streaming
 
         public BufferedReadStream(Stream inner, Socket socket, int bufferLength)
         {
-            if (inner == null)
-            {
-                throw new ArgumentNullException(nameof(inner));
-            }
+            _ = inner ?? throw new ArgumentNullException(nameof(inner));
+
             _inner = inner;
             _socket = socket;
             _bufferRefCount = 1;
@@ -83,14 +81,13 @@ namespace Alembic.Docker.Streaming
             if (!_disposed)
             {
                 _disposed = true;
+
                 if (disposing)
                 {
                     _inner.Dispose();
 
                     if (Interlocked.Decrement(ref _bufferRefCount) == 0)
-                    {
                         ArrayPool<byte>.Shared.Return(_buffer);
-                    }
                 }
             }
         }
@@ -118,10 +115,9 @@ namespace Alembic.Docker.Streaming
         public override int Read(byte[] buffer, int offset, int count)
         {
             int read = ReadBuffer(buffer, offset, count);
+
             if (read > 0)
-            {
                 return read;
-            }
 
             return _inner.Read(buffer, offset, count);
         }
@@ -129,10 +125,9 @@ namespace Alembic.Docker.Streaming
         public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             int read = ReadBuffer(buffer, offset, count);
+
             if (read > 0)
-            {
                 return Task.FromResult(read);
-            }
 
             return _inner.ReadAsync(buffer, offset, count, cancellationToken);
         }
@@ -145,6 +140,7 @@ namespace Alembic.Docker.Streaming
                 Buffer.BlockCopy(_buffer, _bufferOffset, buffer, offset, toCopy);
                 _bufferOffset += toCopy;
                 _bufferCount -= toCopy;
+
                 return toCopy;
             }
 
@@ -161,22 +157,16 @@ namespace Alembic.Docker.Streaming
                 try
                 {
                     if (validBuffer)
-                    {
                         _bufferCount = await _inner.ReadAsync(_buffer, _bufferOffset, _buffer.Length, cancel);
-                    }
                 }
                 finally
                 {
                     if ((Interlocked.Decrement(ref _bufferRefCount) == 0) && validBuffer)
-                    {
                         ArrayPool<byte>.Shared.Return(_buffer);
-                    }
                 }
 
                 if (_bufferCount == 0)
-                {
                     throw new IOException("Unexpected end of stream");
-                }
             }
         }
 
@@ -186,31 +176,26 @@ namespace Alembic.Docker.Streaming
             ThrowIfDisposed();
             StringBuilder builder = new StringBuilder();
             bool foundCR = false, foundCRLF = false;
+
             do
             {
                 if (_bufferCount == 0)
-                {
                     await EnsureBufferedAsync(cancel);
-                }
 
                 char ch = (char)_buffer[_bufferOffset]; // TODO: Encoding enforcement
                 builder.Append(ch);
                 _bufferOffset++;
                 _bufferCount--;
+
                 if (ch == CR)
-                {
                     foundCR = true;
-                }
+
                 else if (ch == LF)
                 {
                     if (foundCR)
-                    {
                         foundCRLF = true;
-                    }
                     else
-                    {
                         foundCR = false;
-                    }
                 }
             }
             while (!foundCRLF);
@@ -221,9 +206,7 @@ namespace Alembic.Docker.Streaming
         private void ThrowIfDisposed()
         {
             if (_disposed)
-            {
                 throw new ObjectDisposedException(nameof(BufferedReadStream));
-            }
         }
 
         public override bool CanCloseWrite => _socket != null || _inner is WriteClosableStream;
@@ -233,13 +216,16 @@ namespace Alembic.Docker.Streaming
             if (_socket != null)
             {
                 _socket.Shutdown(SocketShutdown.Send);
+
                 return;
             }
 
             var s = _inner as WriteClosableStream;
+
             if (s != null)
             {
                 s.CloseWrite();
+
                 return;
             }
 

@@ -64,11 +64,8 @@ namespace Alembic.Docker.Client
 
                     var serverName = uri.Host;
 
-                    if (string.Equals(serverName, "localhost", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // npipe schemes dont work with npipe://localhost/... and need npipe://./... so fix that for a client here.
-                        serverName = ".";
-                    }
+                    // npipe schemes dont work with npipe://localhost/... and need npipe://./... so fix that for a client here.
+                    serverName = string.Equals(serverName, "localhost", StringComparison.OrdinalIgnoreCase) ? "." : serverName;
 
                     var pipeName = uri.Segments[2];
 
@@ -99,7 +96,7 @@ namespace Alembic.Docker.Client
                     break;
 
                 default:
-                    throw new Exception($"Unknown URL scheme {uri.Scheme}");
+                    throw new UnsupportedDockerClientProtocolException(uri.Scheme);
             }
 
             return (handler, uri);

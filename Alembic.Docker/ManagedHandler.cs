@@ -46,19 +46,18 @@ namespace Alembic.Docker
 
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (request == null)
-            {
-                throw new ArgumentNullException("request");
-            }
+            _ = request ?? throw new ArgumentNullException(nameof(request));
 
-            HttpResponseMessage response = null;
             int redirectCount = 0;
             bool retry;
+
+            HttpResponseMessage response;
 
             do
             {
                 retry = false;
                 response = await ProcessRequestAsync(request, cancellationToken);
+
                 if (redirectCount < MaxAutomaticRedirects && IsAllowedRedirectResponse(request, response))
                 {
                     redirectCount++;
@@ -74,22 +73,16 @@ namespace Alembic.Docker
         {
             // Are redirects enabled?
             if (RedirectMode == RedirectMode.None)
-            {
                 return false;
-            }
 
             // Status codes 301 and 302
             if (response.StatusCode != HttpStatusCode.Redirect && response.StatusCode != HttpStatusCode.Moved)
-            {
                 return false;
-            }
 
             Uri location = response.Headers.Location;
 
             if (location == null)
-            {
                 return false;
-            }
 
             if (!location.IsAbsoluteUri)
             {
@@ -97,15 +90,15 @@ namespace Alembic.Docker
                 request.SetPathAndQueryProperty(null);
                 request.SetAddressLineProperty(null);
                 request.Headers.Authorization = null;
+
                 return true;
             }
 
             // Check if redirect from https to http is allowed
-            if (request.IsHttps() && string.Equals("http", location.Scheme, StringComparison.OrdinalIgnoreCase)
-                && RedirectMode == RedirectMode.NoDowngrade)
-            {
+            if (request.IsHttps() &&
+                string.Equals("http", location.Scheme, StringComparison.OrdinalIgnoreCase) &&
+                RedirectMode == RedirectMode.NoDowngrade)
                 return false;
-            }
 
             // Reset fields calculated from the URI.
             request.RequestUri = location;
@@ -171,9 +164,10 @@ namespace Alembic.Docker
         }
 
         // Data comes from either the request.RequestUri or from the request.Properties
-        private void ProcessUrl(HttpRequestMessage request)
+        private static void ProcessUrl(HttpRequestMessage request)
         {
             string scheme = request.GetSchemeProperty();
+
             if (string.IsNullOrWhiteSpace(scheme))
             {
                 if (!request.RequestUri.IsAbsoluteUri)
@@ -187,6 +181,7 @@ namespace Alembic.Docker
                 throw new InvalidOperationException("Only HTTP or HTTPS are supported, not: " + request.RequestUri.Scheme);
 
             string host = request.GetHostProperty();
+
             if (string.IsNullOrWhiteSpace(host))
             {
                 if (!request.RequestUri.IsAbsoluteUri)
@@ -197,10 +192,12 @@ namespace Alembic.Docker
             }
 
             string connectionHost = request.GetConnectionHostProperty();
+
             if (string.IsNullOrWhiteSpace(connectionHost))
                 request.SetConnectionHostProperty(host);
 
             int? port = request.GetPortProperty();
+
             if (!port.HasValue)
             {
                 if (!request.RequestUri.IsAbsoluteUri)
@@ -211,10 +208,12 @@ namespace Alembic.Docker
             }
 
             int? connectionPort = request.GetConnectionPortProperty();
+
             if (!connectionPort.HasValue)
                 request.SetConnectionPortProperty(port);
 
             string pathAndQuery = request.GetPathAndQueryProperty();
+
             if (string.IsNullOrWhiteSpace(pathAndQuery))
             {
                 if (request.RequestUri.IsAbsoluteUri)
@@ -245,13 +244,13 @@ namespace Alembic.Docker
         private static async Task<Socket> TCPSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
         {
             var addresses = await Dns.GetHostAddressesAsync(host);
+
             if (addresses.Length == 0)
-            {
                 throw new Exception($"could not resolve address for {host}");
-            }
 
             Socket connectedSocket = null;
             Exception lastException = null;
+
             foreach (var address in addresses)
             {
                 var s = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -270,9 +269,7 @@ namespace Alembic.Docker
             }
 
             if (connectedSocket == null)
-            {
                 throw lastException;
-            }
 
             return connectedSocket;
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -79,23 +80,23 @@ namespace Alembic.Docker.Streaming
         private void UpdateBytesRemaining(int read)
         {
             _bytesRemaining -= read;
+
             if (_bytesRemaining <= 0)
-            {
                 _disposed = true;
-            }
-            System.Diagnostics.Debug.Assert(_bytesRemaining >= 0, "Negative bytes remaining? " + _bytesRemaining);
+
+            Debug.Assert(_bytesRemaining >= 0, "Negative bytes remaining? " + _bytesRemaining);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
             // TODO: Validate buffer
             if (_disposed)
-            {
                 return 0;
-            }
+
             int toRead = (int)Math.Min(count, _bytesRemaining);
             int read = _inner.Read(buffer, offset, toRead);
             UpdateBytesRemaining(read);
+
             return read;
         }
 
@@ -103,13 +104,13 @@ namespace Alembic.Docker.Streaming
         {
             // TODO: Validate args
             if (_disposed)
-            {
                 return 0;
-            }
+
             cancellationToken.ThrowIfCancellationRequested();
             int toRead = (int)Math.Min(count, _bytesRemaining);
             int read = await _inner.ReadAsync(buffer, offset, toRead, cancellationToken);
             UpdateBytesRemaining(read);
+
             return read;
         }
 
@@ -125,9 +126,7 @@ namespace Alembic.Docker.Streaming
         private void CheckDisposed()
         {
             if (_disposed)
-            {
                 throw new ObjectDisposedException(typeof(ContentLengthReadStream).FullName);
-            }
         }
 
         public override void Write(byte[] buffer, int offset, int count)
