@@ -12,20 +12,22 @@ using System.Threading;
 
 namespace Alembic.Docker.Client
 {
-    public interface IDockerClientFactory
+    public interface IManagedHandlerFactory
     {
         HttpClient GetOrCreate();
     }
 
-    public class DockerClientFactory : IDockerClientFactory
+    public class ManagedHandlerFactory : IManagedHandlerFactory, IDisposable
     {
         private static readonly TimeSpan InfiniteTimeout = TimeSpan.FromMilliseconds(Timeout.Infinite);
 
         private readonly Dictionary<Uri, HttpClient> _cache = new Dictionary<Uri, HttpClient>();
-        private readonly DockerClientFactoryOptions _options;
+        private readonly ManagedHandlerFactoryOptions _options;
         private readonly ILogger _logger;
 
-        public DockerClientFactory(IOptionsMonitor<DockerClientFactoryOptions> options, ILogger<DockerClientFactory> logger)
+        private bool _disposedValue;
+
+        public ManagedHandlerFactory(IOptionsMonitor<ManagedHandlerFactoryOptions> options, ILogger<ManagedHandlerFactory> logger)
         {
             _options = options.CurrentValue;
             _logger = logger;
@@ -96,7 +98,7 @@ namespace Alembic.Docker.Client
                     break;
 
                 default:
-                    throw new UnsupportedDockerClientProtocolException(uri.Scheme);
+                    throw new UnsupportedProtocolException(uri.Scheme);
             }
 
             return (handler, uri);
@@ -115,6 +117,28 @@ namespace Alembic.Docker.Client
                 return @"unix:/var/run/docker.sock";
 
             throw new Exception("Was unable to determine what OS this is running on, does not appear to be Windows or Linux!?");
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    foreach(var item in _cache)
+                    {
+                        item.Value.Dispose();
+                    }
+                }
+
+                _disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

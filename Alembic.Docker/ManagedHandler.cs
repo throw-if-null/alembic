@@ -21,9 +21,8 @@ namespace Alembic.Docker
         private readonly StreamOpener _streamOpener;
         private readonly SocketOpener _socketOpener;
 
-        public ManagedHandler()
+        private ManagedHandler()
         {
-            _socketOpener = TCPSocketOpenerAsync;
         }
 
         public ManagedHandler(StreamOpener opener)
@@ -136,13 +135,20 @@ namespace Alembic.Docker
             {
                 if (_socketOpener != null)
                 {
-                    socket = await _socketOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken);
+                    socket = await _socketOpener(
+                        request.GetConnectionHostProperty(),
+                        request.GetConnectionPortProperty().Value,
+                        cancellationToken);
+
                     transport = new NetworkStream(socket, true);
                 }
                 else
                 {
                     socket = null;
-                    transport = await _streamOpener(request.GetConnectionHostProperty(), request.GetConnectionPortProperty().Value, cancellationToken);
+                    transport = await _streamOpener(
+                        request.GetConnectionHostProperty(),
+                        request.GetConnectionPortProperty().Value,
+                        cancellationToken);
                 }
             }
             catch (SocketException sox)
@@ -225,53 +231,21 @@ namespace Alembic.Docker
             }
         }
 
-        private void ProcessHostHeader(HttpRequestMessage request)
+        private static void ProcessHostHeader(HttpRequestMessage request)
         {
-            if (string.IsNullOrWhiteSpace(request.Headers.Host))
+            if (!string.IsNullOrWhiteSpace(request.Headers.Host))
+                return;
+
+            string host = request.GetHostProperty();
+            int port = request.GetPortProperty().Value;
+
+            if (host.Contains(':'))
             {
-                string host = request.GetHostProperty();
-                int port = request.GetPortProperty().Value;
-                if (host.Contains(':'))
-                {
-                    // IPv6
-                    host = '[' + host + ']';
-                }
-
-                request.Headers.Host = host + ":" + port.ToString(CultureInfo.InvariantCulture);
-            }
-        }
-
-        private static async Task<Socket> TCPSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
-        {
-            var addresses = await Dns.GetHostAddressesAsync(host);
-
-            if (addresses.Length == 0)
-                throw new Exception($"could not resolve address for {host}");
-
-            Socket connectedSocket = null;
-            Exception lastException = null;
-
-            foreach (var address in addresses)
-            {
-                var s = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                try
-                {
-                    await s.ConnectAsync(address, port);
-
-                    connectedSocket = s;
-                    break;
-                }
-                catch (Exception e)
-                {
-                    s.Dispose();
-                    lastException = e;
-                }
+                // IPv6
+                host = '[' + host + ']';
             }
 
-            if (connectedSocket == null)
-                throw lastException;
-
-            return connectedSocket;
+            request.Headers.Host = host + ":" + port.ToString(CultureInfo.InvariantCulture);
         }
     }
 }

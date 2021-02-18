@@ -36,14 +36,6 @@ namespace Alembic.Docker
             }
         }
 
-        public WriteClosableStream HijackStream()
-        {
-            if (_responseStream != _connection.Transport)
-                throw new InvalidOperationException("cannot hijack chunked or content length stream");
-
-            return _connection.Transport;
-        }
-
         protected override Task SerializeToStreamAsync(Stream stream, System.Net.TransportContext context)
         {
             return _responseStream.CopyToAsync(stream);

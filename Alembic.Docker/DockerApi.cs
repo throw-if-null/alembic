@@ -17,7 +17,7 @@ using static Alembic.Docker.DockerClient;
 
 namespace Alembic.Docker
 {
-    public class DockerApi : IDockerApi
+    public sealed class DockerApi : IDockerApi
     {
         private static readonly TimeSpan Timeout = TimeSpan.FromMinutes(2);
         private static readonly IEnumerable<ApiResponseErrorHandlingDelegate> NoErrorHandlers = Enumerable.Empty<ApiResponseErrorHandlingDelegate>();
@@ -30,7 +30,7 @@ namespace Alembic.Docker
             ((IDisposable)stream).Dispose();
         };
 
-        protected internal ConcurrentDictionary<string, int> _containerRetries = new ConcurrentDictionary<string, int>();
+        internal ConcurrentDictionary<string, int> _containerRetries = new ConcurrentDictionary<string, int>();
 
         private readonly IDockerClient _client;
         private readonly IReporter _reporter;
@@ -227,7 +227,7 @@ namespace Alembic.Docker
                 new { title = "Logs"},
             };
 
-            foreach (var log in container.State.Health.Logs)
+            foreach (var log in container.State?.Health?.Logs ?? Enumerable.Empty<HealthLog>())
             {
                 fields.Add(new { value = $"`{JsonConvert.SerializeObject(log)}`\n" });
             }

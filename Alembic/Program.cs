@@ -29,7 +29,7 @@ namespace Alembic
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    services.Configure<DockerClientFactoryOptions>(context.Configuration.GetSection("DockerClientFactoryOptions"));
+                    services.Configure<ManagedHandlerFactoryOptions>(context.Configuration.GetSection("DockerClientFactoryOptions"));
                     services.Configure<RetryProviderOptions>(context.Configuration.GetSection("RetryProviderOptions"));
                     services.Configure<WebHookReporterOptions>(context.Configuration.GetSection("WebHookReporterOptions"));
                     services.Configure<DockerMonitorOptions>(context.Configuration.GetSection("DockerMonitorOptions"));
@@ -37,9 +37,8 @@ namespace Alembic
                     services.AddLogging(x => x.AddConsole());
 
                     services.AddSingleton<IReporter, WebHookReporter>();
-                    services.AddHttpClient();
                     services.AddSingleton<IRetryProvider, RetryProvider>();
-                    services.AddSingleton<IDockerClientFactory, DockerClientFactory>();
+                    services.AddSingleton<IManagedHandlerFactory, ManagedHandlerFactory>();
                     services.AddSingleton<IDockerClient, DockerClient>();
                     services.AddSingleton<IDockerApi, DockerApi>();
                     services.AddTransient<IDockerMonitor, DockerMonitor>();

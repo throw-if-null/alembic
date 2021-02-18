@@ -14,7 +14,7 @@ namespace Alembic.Docker
     {
         Task<(HttpStatusCode responseStatus, string responseBody)> MakeRequestAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken token);
 
-        Task<Stream> MakeRequestForStreamAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken token);
+        Task<Stream> MakeRequestForStreamAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken cancellation);
     }
 
     public sealed class DockerClient : IDockerClient
@@ -26,9 +26,9 @@ namespace Alembic.Docker
 
         public delegate void ApiResponseErrorHandlingDelegate(HttpStatusCode statusCode, string responseBody);
 
-        private readonly IDockerClientFactory _factory;
+        private readonly IManagedHandlerFactory _factory;
 
-        public DockerClient(IDockerClientFactory factory)
+        public DockerClient(IManagedHandlerFactory factory)
         {
             _factory = factory;
         }
@@ -40,13 +40,22 @@ namespace Alembic.Docker
             string queryString,
             IDictionary<string, string> headers,
             TimeSpan timeout,
-            CancellationToken token)
+            CancellationToken cancellation)
         {
-            var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseContentRead, method, path, queryString, headers, token);
+            var response =
+                await
+                    PrivateMakeRequestAsync(
+                        timeout,
+                        HttpCompletionOption.ResponseContentRead,
+                        method,
+                        path,
+                        queryString,
+                        headers,
+                        cancellation);
 
             using (response)
             {
-                await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers);
+                await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers, cancellation);
 
                 var responseBody = await response.Content.ReadAsStringAsync();
 
@@ -61,11 +70,20 @@ namespace Alembic.Docker
             string queryString,
             IDictionary<string, string> headers,
             TimeSpan timeout,
-            CancellationToken token)
+            CancellationToken cancellation)
         {
-            var response = await PrivateMakeRequestAsync(timeout, HttpCompletionOption.ResponseHeadersRead, method, path, queryString, headers, token);
+            var response =
+                await
+                    PrivateMakeRequestAsync(
+                        timeout,
+                        HttpCompletionOption.ResponseHeadersRead,
+                        method,
+                        path,
+                        queryString,
+                        headers,
+                        cancellation);
 
-            await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers);
+            await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers, cancellation);
 
             return await response.Content.ReadAsStreamAsync();
         }
@@ -91,17 +109,29 @@ namespace Alembic.Docker
                 // We must await here because we need to dispose of the CTS only after the work has been completed.
                 return
                     await
-                        PrivateMakeRequestAsync(InfiniteTimeout, completionOption, method, path, queryString, headers, timeoutTokenSource.Token);
+                        PrivateMakeRequestAsync(
+                            InfiniteTimeout,
+                            completionOption,
+                            method,
+                            path,
+                            queryString,
+                            headers,
+                            timeoutTokenSource.Token);
             }
 
-            var request = PrepareRequest(method, _factory.GetOrCreate().BaseAddress, path, queryString, headers);
-
-            var response = await _factory.GetOrCreate().SendAsync(request, completionOption, cancellationToken);
+            var httpClient = _factory.GetOrCreate();
+            var request = PrepareRequest(method, httpClient.BaseAddress, path, queryString, headers);
+            var response = await httpClient.SendAsync(request, completionOption, cancellationToken);
 
             return response;
         }
 
-        private static HttpRequestMessage PrepareRequest(HttpMethod method, Uri baseUri, string path, string queryString, IDictionary<string, string> headers)
+        private static HttpRequestMessage PrepareRequest(
+            HttpMethod method,
+            Uri baseUri,
+            string path,
+            string queryString,
+            IDictionary<string, string> headers)
         {
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentNullException(nameof(path));
@@ -128,7 +158,11 @@ namespace Alembic.Docker
             return request;
         }
 
-        private static async Task HandleIfErrorResponseAsync(HttpStatusCode statusCode, HttpResponseMessage response, IEnumerable<ApiResponseErrorHandlingDelegate> handlers)
+        private static async Task HandleIfErrorResponseAsync(
+            HttpStatusCode statusCode,
+            HttpResponseMessage response,
+            IEnumerable<ApiResponseErrorHandlingDelegate> handlers,
+            CancellationToken cancellation)
         {
             bool isErrorResponse = statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest;
 
@@ -139,7 +173,7 @@ namespace Alembic.Docker
                 // If it is not an error response, we do not read the response body because the caller may wish to consume it.
                 // If it is an error response, we do because there is nothing else going to be done with it anyway and
                 // we want to report the response body in the error message as it contains potentially useful info.
-                responseBody = await response.Content.ReadAsStringAsync();
+                responseBody = await response.Content.ReadAsStringAsync(cancellation);
             }
 
             // If no customer handlers just default the response.

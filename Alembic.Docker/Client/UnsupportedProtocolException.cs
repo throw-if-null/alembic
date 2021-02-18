@@ -2,9 +2,9 @@
 
 namespace Alembic.Docker.Client
 {
-    public class UnsupportedDockerClientProtocolException : Exception
+    public class UnsupportedProtocolException : Exception
     {
-        public UnsupportedDockerClientProtocolException(string schema)
+        public UnsupportedProtocolException(string schema)
             : base($"Schema: {schema} is not supported.")
         {
         }

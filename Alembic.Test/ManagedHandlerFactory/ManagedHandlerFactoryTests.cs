@@ -1,14 +1,19 @@
-﻿using Alembic.Docker.Client;
+﻿using Alembic.Docker;
+using Alembic.Docker.Client;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Alembic.Test
 {
-    public class DockerClientFactoryTests
+    public class ManagedHandlerFactoryTests
     {
         [Theory]
         [InlineData(".")]
@@ -16,9 +21,9 @@ namespace Alembic.Test
         [InlineData("unix:/var/run/docker.sock")]
         public void Should_Initialize_And_Get_Client(string baseUri)
         {
-            var loggerMock = new Mock<ILogger<DockerClientFactory>>();
+            var loggerMock = new Mock<ILogger<ManagedHandlerFactory>>();
 
-            var factory = new DockerClientFactory(new DockerClinetFacotryOptionsEx(baseUri), loggerMock.Object);
+            var factory = new ManagedHandlerFactory(new ManagedHandlerFactoryOptionsEx(baseUri), loggerMock.Object);
 
             var client = factory.GetOrCreate();
             Assert.NotNull(client);
@@ -30,19 +35,19 @@ namespace Alembic.Test
         [InlineData("tcp://localhost")]
         public void Should_Trhow_UnsupportedDockerClientProtocolException(string baseUri)
         {
-            var loggerMock = new Mock<ILogger<DockerClientFactory>>();
+            var loggerMock = new Mock<ILogger<ManagedHandlerFactory>>();
 
-            var factory = new DockerClientFactory(new DockerClinetFacotryOptionsEx(baseUri), loggerMock.Object);
+            var factory = new ManagedHandlerFactory(new ManagedHandlerFactoryOptionsEx(baseUri), loggerMock.Object);
 
-            Assert.ThrowsAny<UnsupportedDockerClientProtocolException>(() => factory.GetOrCreate());
+            Assert.ThrowsAny<UnsupportedProtocolException>(() => factory.GetOrCreate());
         }
 
         [Fact]
         public void Should_Initialize_Client_Only_Once()
         {
-            var loggerMock = new Mock<ILogger<DockerClientFactory>>();
+            var loggerMock = new Mock<ILogger<ManagedHandlerFactory>>();
 
-            var factory = new DockerClientFactory(new DockerClinetFacotryOptionsEx("."), loggerMock.Object);
+            var factory = new ManagedHandlerFactory(new ManagedHandlerFactoryOptionsEx("."), loggerMock.Object);
 
             var client = factory.GetOrCreate();
             var client2 = factory.GetOrCreate();
@@ -62,6 +67,18 @@ namespace Alembic.Test
 
             var formattedLogValue = formattedLogValues.First();
             Assert.Equal($"HttpClient created: {client.BaseAddress}", formattedLogValue.Value);
+        }
+
+        [Fact]
+        public void Should_Throw_ArgumentException()
+        {
+            var baseUrl = "npipe://./pipepipe/docker_engine";
+
+            var loggerMock = new Mock<ILogger<ManagedHandlerFactory>>();
+            var factory = new ManagedHandlerFactory(new ManagedHandlerFactoryOptionsEx(baseUrl), loggerMock.Object);
+
+            var exception = Assert.Throws<ArgumentException>(() => factory.GetOrCreate());
+            Assert.Equal(exception.Message, $"{baseUrl} is not a valid npipe URI");
         }
     }
 }
