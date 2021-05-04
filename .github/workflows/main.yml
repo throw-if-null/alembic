@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@branch-zero
+        uses: actions/checkout@v2
 
       - name: Publish Docker
         uses: elgohr/Publish-Docker-Github-Action@3.04
