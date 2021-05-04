@@ -8,12 +8,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
-      - name: Docker Semver
-        uses: mirzamerdovic/docker-semver-github-action@master
+      - name: Checkout
+        uses: actions/checkout@branch-zero
+
+      - name: Publish Docker
+        uses: elgohr/Publish-Docker-Github-Action@3.04
         with:
-          name: mirzamerdovic/alembic
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          dockerfile:  ./Alembic/Dockerfile 
+          name: throw-if-null/alembic/alembic
+          username: ${{ github.actor }}
+          password: ${{ secrets.PACKAGES_RW_PAT }}
+          registry: docker.pkg.github.com
+          default_branch: branch-zero
+          dockerfile: ./Alembic/Dockerfile
           context: .
