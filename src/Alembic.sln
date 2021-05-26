@@ -18,6 +18,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic.Test", "Alembic.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alembic.Docker", "Alembic.Docker\Alembic.Docker.csproj", "{42BC7C12-F810-4542-852F-17779EC69C13}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".devops", ".devops", "{164C6EE2-C5D6-48AA-9CBA-D7E4DFEBB424}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\codeql-analysis.yml = ..\.github\workflows\codeql-analysis.yml
+		..\.github\workflows\main.yml = ..\.github\workflows\main.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
