@@ -11,3 +11,8 @@ updates:
       interval: "daily"
     labels:
       - "nuget"
+    reviewers:
+      - "MirzaMerdovic"
+    pull-request-branch-name:
+      # by default this will be /
+      separator: "-"
