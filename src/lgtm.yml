@@ -1,0 +1,7 @@
+extraction:
+  csharp:
+    index:
+      solution: Alembic.sln
+      msbuild:
+        configuration: release   
+        platform: x64
