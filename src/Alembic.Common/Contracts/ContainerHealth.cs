@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 
 namespace Alembic.Common.Contracts
 {
@@ -8,7 +8,6 @@ namespace Alembic.Common.Contracts
 
         public int FailingStreak { get; set; }
 
-        [JsonProperty("Log")]
-        public HealthLog[] Logs { get; set; }
+        public HealthLog[] Log { get; set; } = Array.Empty<HealthLog>();
     }
 }

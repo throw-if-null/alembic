@@ -1,10 +1,4 @@
-﻿using Alembic.Common.Contracts;
-using Alembic.Common.Services;
-using Alembic.Docker;
-using Alembic.Test.Properties;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +7,12 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Alembic.Common.Contracts;
+using Alembic.Common.Services;
+using Alembic.Docker;
+using Alembic.Test.Properties;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Xunit;
 using static Alembic.Docker.DockerClient;
 
@@ -82,7 +82,7 @@ namespace Alembic.Test
         [Fact]
         public async Task Should_Get_Status_And_Restart()
         {
-            var api = new DockerApiEx(new DockerApi(
+            var api = new DockerApi(
                 BuildDockerClientMock(
                     Resources.InspectContainer_ReturnUnhealthy_Id,
                     StatusStream_ReturnUnhealthy,
@@ -90,7 +90,8 @@ namespace Alembic.Test
                     ReturnNoContent,
                     ReturnNoContent),
                 BuildReporterMock(),
-                NullLogger<DockerApi>.Instance));
+                new ContainerRetryTracker(),
+                NullLogger<DockerApi>.Instance);
 
             await api.MonitorHealthStatus(CancellationToken.None, 3, true, OnUnhealthyStatusReceived);
 
@@ -106,7 +107,10 @@ namespace Alembic.Test
         [Fact]
         public async Task Should_Get_Status_And_Restart_Again()
         {
-            var api = new DockerApiEx(new DockerApi(
+            var retryTracker = new ContainerRetryTracker();
+            retryTracker.Add(Resources.InspectContainer_ReturnUnhealthy_Id);
+
+            var api = new DockerApi(
                 BuildDockerClientMock(
                     Resources.InspectContainer_ReturnUnhealthy_Id,
                     StatusStream_ReturnUnhealthy,
@@ -114,9 +118,8 @@ namespace Alembic.Test
                     ReturnNoContent,
                     ReturnNoContent),
                 BuildReporterMock(),
-                NullLogger<DockerApi>.Instance));
-
-            api.SetContainerRetryCount(Resources.InspectContainer_ReturnUnhealthy_Id, 1);
+                retryTracker,
+                NullLogger<DockerApi>.Instance);
 
             await api.MonitorHealthStatus(CancellationToken.None, 3, true, OnUnhealthyStatusReceived);
 
@@ -132,7 +135,7 @@ namespace Alembic.Test
         [Fact]
         public async Task Should_Do_Nothing()
         {
-            var api = new DockerApiEx(new DockerApi(
+            var api = new DockerApi(
                 BuildDockerClientMock(
                     Resources.InspectContainer_ReturnUnhealthy_Id,
                     StatusStream_ReturnHealthy,
@@ -140,7 +143,8 @@ namespace Alembic.Test
                     ReturnNoContent,
                     ReturnNoContent),
                 BuildReporterMock(),
-                NullLogger<DockerApi>.Instance));
+                new ContainerRetryTracker(),
+                NullLogger<DockerApi>.Instance);
 
             await api.MonitorHealthStatus(CancellationToken.None, 3, true, OnHealthyStatusReceived);
 
@@ -156,7 +160,12 @@ namespace Alembic.Test
         [Fact]
         public async Task Should_Get_Status_And_Kill()
         {
-            var api = new DockerApiEx(new DockerApi(
+            var retryTracker = new ContainerRetryTracker();
+            retryTracker.Add(Resources.InspectContainer_ReturnUnhealthy_Id);
+            retryTracker.Add(Resources.InspectContainer_ReturnUnhealthy_Id);
+            retryTracker.Add(Resources.InspectContainer_ReturnUnhealthy_Id);
+
+            var api = new DockerApi(
                 BuildDockerClientMock(
                     Resources.InspectContainer_ReturnUnhealthy_Id,
                     StatusStream_ReturnUnhealthy,
@@ -164,9 +173,8 @@ namespace Alembic.Test
                     ReturnNoContent,
                     ReturnNoContent),
                 BuildReporterMock(),
-                NullLogger<DockerApi>.Instance));
-
-            api.SetContainerRetryCount(Resources.InspectContainer_ReturnUnhealthy_Id, 3);
+                retryTracker,
+                NullLogger<DockerApi>.Instance);
 
             await api.MonitorHealthStatus(CancellationToken.None, 3, true, OnUnhealthyStatusReceived);
 
@@ -182,7 +190,12 @@ namespace Alembic.Test
         [Fact]
         public async Task Should_Get_Status_And_Skip_Kill()
         {
-            var api = new DockerApiEx(new DockerApi(
+            var retrytracker = new ContainerRetryTracker();
+            retrytracker.Add(Resources.InspectContainer_ReturnUnhealthy_Id);
+            retrytracker.Add(Resources.InspectContainer_ReturnUnhealthy_Id);
+            retrytracker.Add(Resources.InspectContainer_ReturnUnhealthy_Id);
+
+            var api = new DockerApi(
                 BuildDockerClientMock(
                     Resources.InspectContainer_ReturnUnhealthy_Id,
                     StatusStream_ReturnUnhealthy,
@@ -190,9 +203,8 @@ namespace Alembic.Test
                     ReturnNoContent,
                     ReturnNoContent),
                 BuildReporterMock(),
-                NullLogger<DockerApi>.Instance));
-
-            api.SetContainerRetryCount(Resources.InspectContainer_ReturnUnhealthy_Id, 3);
+                retrytracker,
+                NullLogger<DockerApi>.Instance);
 
             await api.MonitorHealthStatus(CancellationToken.None, 3, false, OnUnhealthyStatusReceived);
 
@@ -209,7 +221,7 @@ namespace Alembic.Test
         public async Task Should_Kill_After_Rester_Has_Retried_Out()
         {
 
-            var api = new DockerApiEx(new DockerApi(
+            var api = new DockerApi(
                 BuildDockerClientMock(
                     Resources.InspectContainer_ReturnUnhealthy_Id,
                     StatusStream_ReturnUnhealthyThreeTimes,
@@ -217,7 +229,8 @@ namespace Alembic.Test
                     ReturnNoContent,
                     ReturnNoContent),
                 BuildReporterMock(),
-                NullLogger<DockerApi>.Instance));
+                new ContainerRetryTracker(),
+                NullLogger<DockerApi>.Instance);
 
             int counter = 0;
             await api.MonitorHealthStatus(CancellationToken.None, 3, true, OnUnhealthyStatusReceived);

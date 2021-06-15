@@ -1,16 +1,16 @@
-using Alembic.Common.Services;
-using Alembic.Docker;
-using Alembic.Test.Properties;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Alembic.Common.Services;
+using Alembic.Docker;
+using Alembic.Test.Properties;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Xunit;
 using static Alembic.Docker.DockerClient;
 
@@ -45,7 +45,11 @@ namespace Alembic.Test
         [Fact]
         public async Task Should_Get_One_Container()
         {
-            var api = new DockerApi(BuildDockerClientMock(ReturnTwoContainers), BuildReporterMock(), NullLogger<DockerApi>.Instance);
+            var api = new DockerApi(
+                BuildDockerClientMock(ReturnTwoContainers),
+                BuildReporterMock(),
+                new ContainerRetryTracker(),
+                NullLogger<DockerApi>.Instance);
 
             var containers = await api.GetContainers(CancellationToken.None);
 
@@ -63,18 +67,26 @@ namespace Alembic.Test
         [Fact]
         public async Task Should_Return_No_Container_When_DockerClient_Returns_Not_200()
         {
-            var api = new DockerApi(BuildDockerClientMock(ReturnRequestTimeout), BuildReporterMock(), NullLogger<DockerApi>.Instance);
+            var api = new DockerApi(
+                BuildDockerClientMock(ReturnRequestTimeout),
+                BuildReporterMock(),
+                new ContainerRetryTracker(),
+                NullLogger<DockerApi>.Instance);
 
             var containers = await api.GetContainers(CancellationToken.None);
             Assert.Empty(containers);
         }
 
         [Fact]
-        public async Task Should_Throw_JsonSerializationException_When_Payload_Is_Invalid()
+        public async Task Should_Throw_JsonException_When_Payload_Is_Invalid()
         {
-            var api = new DockerApi(BuildDockerClientMock(ReturnInvalidPayload), BuildReporterMock(), NullLogger<DockerApi>.Instance);
+            var api = new DockerApi(
+                BuildDockerClientMock(ReturnInvalidPayload),
+                BuildReporterMock(),
+                new ContainerRetryTracker(),
+                NullLogger<DockerApi>.Instance);
 
-            await Assert.ThrowsAsync<JsonSerializationException>(() => api.GetContainers(CancellationToken.None));
+            await Assert.ThrowsAsync<JsonException>(() => api.GetContainers(CancellationToken.None));
         }
     }
 }

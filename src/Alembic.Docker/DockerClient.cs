@@ -6,13 +6,14 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
 using static Alembic.Docker.DockerClient;
 
 namespace Alembic.Docker
 {
     public interface IDockerClient
     {
-        Task<(HttpStatusCode responseStatus, string responseBody)> MakeRequestAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken token);
+        Task<(HttpStatusCode responseStatus, string responseBody)> MakeRequestAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken cancellation);
 
         Task<Stream> MakeRequestForStreamAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken cancellation);
     }
