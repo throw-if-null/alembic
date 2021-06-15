@@ -2,11 +2,11 @@
 using Alembic.Common.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -47,7 +47,7 @@ namespace Alembic.Reporting.Slack
                     _retryProvider.RetryOn<HttpRequestException, HttpResponseMessage>(
                         CheckError,
                         TransientHttpStatusCodePredicate,
-                        () => Send(_client, _options, JsonConvert.SerializeObject(payload, Formatting.Indented), _logger, linkedSource.Token));
+                        () => Send(_client, _options, JsonSerializer.Serialize(payload), _logger, linkedSource.Token));
             }
             catch (Exception ex)
             {

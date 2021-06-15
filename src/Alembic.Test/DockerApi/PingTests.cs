@@ -1,15 +1,15 @@
-﻿using Alembic.Common.Services;
-using Alembic.Docker;
-using Alembic.Test.Properties;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Alembic.Common.Services;
+using Alembic.Docker;
+using Alembic.Test.Properties;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Xunit;
 using static Alembic.Docker.DockerClient;
 
@@ -46,6 +46,7 @@ namespace Alembic.Test
             var api = new DockerApi(
                 BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnPong),
                 BuildReporterMock(),
+                new ContainerRetryTracker(),
                 NullLogger<DockerApi>.Instance);
 
             var response = await api.Ping(CancellationToken.None);
@@ -58,6 +59,7 @@ namespace Alembic.Test
             var api = new DockerApi(
                 BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnRequestTimeout),
                 BuildReporterMock(),
+                new ContainerRetryTracker(),
                 NullLogger<DockerApi>.Instance);
 
             await Assert.ThrowsAsync<DockerApiException>(() => api.Ping(CancellationToken.None));

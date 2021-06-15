@@ -1,7 +1,6 @@
 ﻿using Alembic.Common.Contracts;
 using Alembic.Common.Services;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,17 +30,25 @@ namespace Alembic.Docker
             ((IDisposable)stream).Dispose();
         };
 
-        internal ConcurrentDictionary<string, int> _containerRetries = new ConcurrentDictionary<string, int>();
+        private static readonly Func<JsonSerializerOptions> GetSerializationOptions = delegate ()
+        {
+            return new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+        };
 
         private readonly IDockerClient _client;
         private readonly IReporter _reporter;
         private readonly ILogger _logger;
+        private readonly IContainerRetryTracker _retryTracker;
 
-        public DockerApi(IDockerClient client, IReporter reporter, ILogger<DockerApi> logger)
+        public DockerApi(IDockerClient client, IReporter reporter, IContainerRetryTracker retryTracker, ILogger<DockerApi> logger)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
-            _reporter = reporter ?? throw new ArgumentNullException(nameof(client));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _client = client;
+            _reporter = reporter;
+            _retryTracker = retryTracker;
+            _logger = logger;
         }
 
         public async Task<string> Ping(CancellationToken cancellation)
@@ -59,7 +67,7 @@ namespace Alembic.Docker
 
             if (status == HttpStatusCode.OK)
             {
-                var containers = JsonConvert.DeserializeObject<ContainerInfo[]>(body);
+                var containers = JsonSerializer.Deserialize<ContainerInfo[]>(body);
 
                 return containers;
             }
@@ -73,7 +81,7 @@ namespace Alembic.Docker
 
             if (status == HttpStatusCode.OK)
             {
-                var container = JsonConvert.DeserializeObject<Container>(body);
+                var container = JsonSerializer.Deserialize<Container>(body, GetSerializationOptions());
 
                 return container;
             }
@@ -104,7 +112,7 @@ namespace Alembic.Docker
 
                 _logger.LogInformation($"Container: {id} killed successfully.");
 
-                _ = _containerRetries.TryRemove(id, out int _);
+                _retryTracker.Remove(id);
             }
             else
             {
@@ -137,25 +145,21 @@ namespace Alembic.Docker
                 string line;
                 while ((line = await reader.ReadLineAsync()) != null)
                 {
-                    var containerHealth = JsonConvert.DeserializeObject<ContainerInfo>(line);
+                    var containerHealth = JsonSerializer.Deserialize<ContainerInfo>(line, GetSerializationOptions());
 
                     var report = new UnhealthyStatusActionReport(0, false, false);
 
                     if (containerHealth.Status.Split(":")[1].Trim().ToLowerInvariant() != "unhealthy")
                         continue;
 
-                    if (_containerRetries.TryGetValue(containerHealth.Id, out var _))
-                        _containerRetries[containerHealth.Id] = _containerRetries[containerHealth.Id] + 1;
-                    else
-                        _containerRetries[containerHealth.Id] = 1;
+                    _retryTracker.Add(containerHealth.Id);
+                    report.RestartCount = _retryTracker.GetRetryCount(containerHealth.Id);
 
-                    report.RestartCount = _containerRetries[containerHealth.Id];
-
-                    if (_containerRetries[containerHealth.Id] <= restartCount)
+                    if (report.RestartCount <= restartCount)
                     {
                         var restartStatus = await RestartContainer(
                             containerHealth.Id,
-                            $"Container restart number: {_containerRetries[containerHealth.Id]} of {restartCount}",
+                            $"Container restart number: {report.RestartCount} of {restartCount}",
                             cancellation);
 
                         report.Restarted = restartStatus == HttpStatusCode.NoContent;
@@ -227,9 +231,9 @@ namespace Alembic.Docker
                 new { title = "Logs"},
             };
 
-            foreach (var log in container.State?.Health?.Logs ?? Enumerable.Empty<HealthLog>())
+            foreach (var log in container.State?.Health?.Log)
             {
-                fields.Add(new { value = $"`{JsonConvert.SerializeObject(log)}`\n" });
+                fields.Add(new { value = $"`{JsonSerializer.Serialize(log)}`\n" });
             }
 
             var content =

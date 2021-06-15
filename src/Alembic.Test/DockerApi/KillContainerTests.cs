@@ -1,15 +1,15 @@
-﻿using Alembic.Common.Services;
-using Alembic.Docker;
-using Alembic.Test.Properties;
-using Microsoft.Extensions.Logging;
-using Moq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Alembic.Common.Services;
+using Alembic.Docker;
+using Alembic.Test.Properties;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 using static Alembic.Docker.DockerClient;
 
@@ -61,6 +61,7 @@ namespace Alembic.Test
             var api = new DockerApi(
                 BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnNoContent, ReturnHealthy),
                 BuildReporterMock(),
+                new ContainerRetryTracker(),
                 loggerMock.Object);
 
             var status = await api.KillContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
@@ -88,6 +89,7 @@ namespace Alembic.Test
             var api = new DockerApi(
                 BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnRequestTimeout, ReturnHealthy),
                 BuildReporterMock(),
+                new ContainerRetryTracker(),
                 loggerMock.Object);
 
             var status = await api.KillContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
@@ -115,6 +117,7 @@ namespace Alembic.Test
             var api = new DockerApi(
                 BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, null, ReturnNotFound),
                 BuildReporterMock(),
+                new ContainerRetryTracker(),
                 loggerMock.Object);
 
             var status = await api.KillContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);

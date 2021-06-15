@@ -1,15 +1,15 @@
-﻿using Alembic.Common.Services;
-using Alembic.Docker;
-using Alembic.Test.Properties;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Alembic.Common.Services;
+using Alembic.Docker;
+using Alembic.Test.Properties;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Xunit;
 using static Alembic.Docker.DockerClient;
 
@@ -47,6 +47,7 @@ namespace Alembic.Test
             var api = new DockerApi(
                 BuildDockerClientMock(Resources.InspectContainer_ReturnHealthy_Id, ReturnHealthy),
                 BuildReporterMock(),
+                new ContainerRetryTracker(),
                 NullLogger<DockerApi>.Instance);
 
             var container = await api.InspectContainer(Resources.InspectContainer_ReturnHealthy_Id, CancellationToken.None);
@@ -61,6 +62,7 @@ namespace Alembic.Test
             var api = new DockerApi(
                 BuildDockerClientMock(Resources.InspectContainer_ReturnUnhealthy_Id, ReturnUnhealthy),
                 BuildReporterMock(),
+                new ContainerRetryTracker(),
                 NullLogger<DockerApi>.Instance);
 
             var container = await api.InspectContainer(Resources.InspectContainer_ReturnUnhealthy_Id, CancellationToken.None);
@@ -68,7 +70,7 @@ namespace Alembic.Test
             Assert.Equal(Resources.InspectContainer_ReturnUnhealthy_Id, container.Id);
             Assert.Equal("starting", container.State.Health.Status);
             Assert.Equal(2, container.State.Health.FailingStreak);
-            Assert.True(container.State.Health.Logs.Length > 1);
+            Assert.True(container.State.Health.Log.Length > 1);
         }
 
         [Fact]
@@ -77,6 +79,7 @@ namespace Alembic.Test
             var api = new DockerApi(
                 BuildDockerClientMock(Resources.InspectContainer_ReturnUnhealthy_Id, ReturnNotFound),
                 BuildReporterMock(),
+                new ContainerRetryTracker(),
                 NullLogger<DockerApi>.Instance);
 
             var container = await api.InspectContainer(Resources.InspectContainer_ReturnUnhealthy_Id, CancellationToken.None);

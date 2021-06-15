@@ -6,7 +6,7 @@ namespace Alembic.Common.Contracts
     {
         public string Error { get; set; }
 
-        public string ExitCode { get; set; }
+        public int ExitCode { get; set; }
 
         public DateTime FinishedAt { get; set; }
 
