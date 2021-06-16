@@ -1,8 +1,11 @@
-﻿using Alembic.Common.Resiliency;
+﻿using Alembic.Common.Contracts;
+using Alembic.Common.Resiliency;
 using Alembic.Common.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -14,6 +17,8 @@ namespace Alembic.Reporting.Slack
 {
     public class WebHookReporter : IReporter
     {
+        private static readonly Uri SLACK_WEBHOOK_URI = new Uri("https://hooks.slack.com/");
+
         private static readonly Func<HttpResponseMessage, bool> TransientHttpStatusCodePredicate = delegate (HttpResponseMessage response)
         {
             if (response.StatusCode < HttpStatusCode.InternalServerError)
@@ -31,15 +36,22 @@ namespace Alembic.Reporting.Slack
         {
             _options = options.CurrentValue;
             _client = factory.CreateClient();
-            _client.BaseAddress = new Uri("https://hooks.slack.com/");
+            _client.BaseAddress = SLACK_WEBHOOK_URI;
             _retryProvider = retryProvider;
             _logger = logger;
         }
 
-        public async Task Send<T>(T payload, CancellationToken cancellation)
+        public async Task Send(Report report, CancellationToken cancellation)
         {
             using var timeoutSource = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             using var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(timeoutSource.Token, cancellation);
+
+            var message =
+                report.Operation == ContainerOperation.Restart
+                ? CreateRestartMessage(report.Message, report.Container)
+                : CreateKillMesage(report.Message, report.Container);
+
+            var payload = JsonSerializer.Serialize(message);
 
             try
             {
@@ -47,12 +59,68 @@ namespace Alembic.Reporting.Slack
                     _retryProvider.RetryOn<HttpRequestException, HttpResponseMessage>(
                         CheckError,
                         TransientHttpStatusCodePredicate,
-                        () => Send(_client, _options, JsonSerializer.Serialize(payload), _logger, linkedSource.Token));
+                        () => Send(_client, _options, payload, _logger, linkedSource.Token));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Report sending failed");
             }
+        }
+
+        private static object CreateKillMesage(string message, Container container)
+        {
+            return CreateSlackMessage("Kill", "danger", message, DateTime.UtcNow, container);
+        }
+
+        private static object CreateRestartMessage(string message, Container container)
+        {
+            return CreateSlackMessage("Restart", "warning", message, DateTime.UtcNow, container);
+        }
+
+        private static object CreateSlackMessage(string eventName, string color, string message, DateTime date, Container container)
+        {
+            var fields = new List<object>
+            {
+                new { title = "Container id", value = $"`{container.Id}`"},
+                new { title = "Container number", value = $"`{container.Config.Labels.ExtractContainerNumberLabelValue()}`"},
+                new { title = "Service", value = $"`{container.Config.Labels.ExtractServiceLabelValue()}`"},
+                new { title = "Image", value = $"`{container.Image}`" },
+                new { title = "Status", value = $"`{container.State.Status}`"},
+                new { title = "Exit code", value = $"`{container.State.ExitCode}`" },
+                new { title = "Logs"},
+            };
+
+            foreach (var log in container.State?.Health?.Log ?? Enumerable.Empty<HealthLog>())
+            {
+                fields.Add(new { value = $"`{JsonSerializer.Serialize(log)}`\n" });
+            }
+
+            var content =
+                new
+                {
+                    attachments = new object[]
+                    {
+                        new
+                        {
+                            mrkdwn_in = new[] { "text" },
+                            color = color,
+                            pretext = $"*Event:* {eventName}",
+                            text = $"_{message}_",
+                            fields = fields,
+                            footer = "Date:",
+                            ts = UtcNowToUnixTimestamp(date)
+                        },
+                    }
+                };
+
+            return content;
+        }
+
+        private static double UtcNowToUnixTimestamp(DateTime date)
+        {
+            TimeSpan difference = date.ToUniversalTime() - DateTime.UnixEpoch;
+
+            return Math.Floor(difference.TotalSeconds);
         }
 
         private bool CheckError(HttpRequestException x)

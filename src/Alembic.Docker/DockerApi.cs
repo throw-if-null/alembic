@@ -1,8 +1,4 @@
-﻿using Alembic.Common.Contracts;
-using Alembic.Common.Services;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,7 +8,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Alembic.Common.Contracts;
+using Alembic.Common.Services;
+using Microsoft.Extensions.Logging;
 using static Alembic.Docker.DockerClient;
 
 namespace Alembic.Docker
@@ -53,7 +51,16 @@ namespace Alembic.Docker
 
         public async Task<string> Ping(CancellationToken cancellation)
         {
-            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Get, "_ping", null, null, Timeout, cancellation);
+            (HttpStatusCode status, string body) =
+                await
+                    _client.MakeRequestAsync(
+                        NoErrorHandlers,
+                        HttpMethod.Get,
+                        "_ping",
+                        null,
+                        null,
+                        Timeout,
+                        cancellation);
 
             if (status == HttpStatusCode.OK)
                 return body;
@@ -63,21 +70,37 @@ namespace Alembic.Docker
 
         public async Task<IEnumerable<ContainerInfo>> GetContainers(CancellationToken cancellation)
         {
-            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Get, "containers/json", "all=true", null, Timeout, cancellation);
+            (HttpStatusCode status, string body) =
+                await
+                    _client.MakeRequestAsync(
+                        NoErrorHandlers,
+                        HttpMethod.Get,
+                        "containers/json",
+                        "all=true",
+                        null,
+                        Timeout,
+                        cancellation);
 
-            if (status == HttpStatusCode.OK)
-            {
-                var containers = JsonSerializer.Deserialize<ContainerInfo[]>(body);
+            if (status != HttpStatusCode.OK)
+                return Enumerable.Empty<ContainerInfo>();
 
-                return containers;
-            }
+            var containers = JsonSerializer.Deserialize<ContainerInfo[]>(body);
 
-            return Enumerable.Empty<ContainerInfo>();
+            return containers;
         }
 
         public async Task<Container> InspectContainer(string id, CancellationToken cancellation)
         {
-            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Get, $"containers/{id}/json", null, null, Timeout, cancellation);
+            (HttpStatusCode status, string body) =
+                await
+                    _client.MakeRequestAsync(
+                        NoErrorHandlers,
+                        HttpMethod.Get,
+                        $"containers/{id}/json",
+                        null,
+                        null,
+                        Timeout,
+                        cancellation);
 
             if (status == HttpStatusCode.OK)
             {
@@ -104,11 +127,20 @@ namespace Alembic.Docker
             if (container == null)
                 return HttpStatusCode.NotFound;
 
-            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/kill", null, null, Timeout, cancellation);
+            (HttpStatusCode status, string body) =
+                await
+                    _client.MakeRequestAsync(
+                        NoErrorHandlers,
+                        HttpMethod.Post,
+                        $"containers/{id}/kill",
+                        null,
+                        null,
+                        Timeout,
+                        cancellation);
 
             if (status == HttpStatusCode.NoContent)
             {
-                await _reporter.Send(CreateKillMesage("Container killed successfully.", container), cancellation);
+                await _reporter.Send(Report.CreateKill("Container killed successfully.", container), cancellation);
 
                 _logger.LogInformation($"Container: {id} killed successfully.");
 
@@ -116,7 +148,8 @@ namespace Alembic.Docker
             }
             else
             {
-                await _reporter.Send(CreateKillMesage("Failed to kill container. Response status: {status}", container), cancellation);
+                await _reporter.Send(Report.CreateRestart("Failed to kill container. Response status: {status}", container), cancellation);
+
                 _logger.LogWarning($"Failed to kill container: {id}. Response status: {status} content: {body}");
             }
 
@@ -129,14 +162,16 @@ namespace Alembic.Docker
             bool killUnhealthyContainer = true,
             Action<UnhealthyStatusActionReport> onUnheathyStatusReceived = null)
         {
-            var stream = await _client.MakeRequestForStreamAsync(
-                NoErrorHandlers,
-                HttpMethod.Get,
-                "events",
-                @"filters=%7B%22event%22%3A%7B%22health_status%22%3Atrue%7D%7D",
-                null,
-                Timeout,
-                cancellation);
+            var stream =
+                await
+                    _client.MakeRequestForStreamAsync(
+                        NoErrorHandlers,
+                        HttpMethod.Get,
+                        "events",
+                        @"filters=%7B%22event%22%3A%7B%22health_status%22%3Atrue%7D%7D",
+                        null,
+                        Timeout,
+                        cancellation);
 
             using (cancellation.Register(Callback, stream, false))
             {
@@ -191,77 +226,30 @@ namespace Alembic.Docker
             if (container == null)
                 return HttpStatusCode.NotFound;
 
-            (HttpStatusCode status, string body) = await _client.MakeRequestAsync(NoErrorHandlers, HttpMethod.Post, $"containers/{id}/restart", null, null, Timeout, cancellation);
+            (HttpStatusCode status, string body) =
+                await
+                    _client.MakeRequestAsync(
+                        NoErrorHandlers,
+                        HttpMethod.Post,
+                        $"containers/{id}/restart",
+                        null,
+                        null,
+                        Timeout,
+                        cancellation);
 
             if (status == HttpStatusCode.NoContent)
                 _logger.LogInformation($"Container: {id} restarted successfully.");
             else
                 _logger.LogWarning($"Failed to restart container: {id}. Response status: {status} content: {body}");
 
-            object slackMessage = status == HttpStatusCode.NoContent
-                ? CreateRestartMessage(reportMessage, container)
-                : CreateRestartMessage($"Failed to restart container. Response status: {status}", container);
+            var slackMessage =
+                status == HttpStatusCode.NoContent
+                    ? reportMessage
+                    : $"Failed to restart container. Response status: {status}";
 
-            await _reporter.Send(slackMessage, cancellation);
+            await _reporter.Send(Report.CreateRestart(slackMessage, container), cancellation);
 
             return status;
-        }
-
-        private static object CreateKillMesage(string message, Container container)
-        {
-            return CreateSlackMessage("Kill", "danger", message, DateTime.UtcNow, container);
-        }
-
-        private static object CreateRestartMessage(string message, Container container)
-        {
-            return CreateSlackMessage("Restart", "warning", message, DateTime.UtcNow, container);
-        }
-
-        // TODO - move this to Slack report integration
-        private static object CreateSlackMessage(string eventName, string color, string message, DateTime date, Container container)
-        {
-            var fields = new List<object>
-            {
-                new { title = "Container id", value = $"`{container.Id}`"},
-                new { title = "Container number", value = $"`{container.Config.Labels.ExtractContainerNumberLabelValue()}`"},
-                new { title = "Service", value = $"`{container.Config.Labels.ExtractServiceLabelValue()}`"},
-                new { title = "Image", value = $"`{container.Image}`" },
-                new { title = "Status", value = $"`{container.State.Status}`"},
-                new { title = "Exit code", value = $"`{container.State.ExitCode}`" },
-                new { title = "Logs"},
-            };
-
-            foreach (var log in container.State?.Health?.Log)
-            {
-                fields.Add(new { value = $"`{JsonSerializer.Serialize(log)}`\n" });
-            }
-
-            var content =
-                new
-                {
-                    attachments = new object[]
-                    {
-                        new
-                        {
-                            mrkdwn_in = new[] { "text" },
-                            color = color,
-                            pretext = $"*Event:* {eventName}",
-                            text = $"_{message}_",
-                            fields = fields,
-                            footer = "Date:",
-                            ts = UtcNowToUnixTimestamp(date)
-                        },
-                    }
-                };
-
-            return content;
-        }
-
-        private static double UtcNowToUnixTimestamp(DateTime date)
-        {
-            TimeSpan difference = date.ToUniversalTime() - DateTime.UnixEpoch;
-
-            return Math.Floor(difference.TotalSeconds);
         }
     }
 }
