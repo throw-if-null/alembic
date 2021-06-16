@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -14,7 +13,6 @@ using Alembic.Test.Properties;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
-using static Alembic.Docker.DockerClient;
 
 namespace Alembic.Test
 {
@@ -32,7 +30,6 @@ namespace Alembic.Test
                 var mock = new Mock<IDockerClient>();
                 mock
                     .Setup(x => x.MakeRequestForStreamAsync(
-                        It.Is<IEnumerable<ApiResponseErrorHandlingDelegate>>(x => x == Enumerable.Empty<ApiResponseErrorHandlingDelegate>()),
                         It.Is<HttpMethod>(x => x == HttpMethod.Get),
                         It.Is<string>(x => x == "events"),
                         It.Is<string>(x => x == @"filters=%7B%22event%22%3A%7B%22health_status%22%3Atrue%7D%7D"),
@@ -43,7 +40,6 @@ namespace Alembic.Test
 
                 mock
                     .Setup(x => x.MakeRequestAsync(
-                        It.Is<IEnumerable<ApiResponseErrorHandlingDelegate>>(x => x == Enumerable.Empty<ApiResponseErrorHandlingDelegate>()),
                         It.Is<HttpMethod>(x => x == HttpMethod.Get),
                         It.Is<string>(x => x == $"containers/{id}/json"),
                         It.Is<string>(x => x == null),
@@ -54,7 +50,6 @@ namespace Alembic.Test
 
                 mock
                     .Setup(x => x.MakeRequestAsync(
-                        It.Is<IEnumerable<ApiResponseErrorHandlingDelegate>>(x => x == Enumerable.Empty<ApiResponseErrorHandlingDelegate>()),
                         It.Is<HttpMethod>(x => x == HttpMethod.Post),
                         It.Is<string>(x => x == $"containers/{id}/restart"),
                         It.Is<string>(x => x == null),
@@ -65,7 +60,6 @@ namespace Alembic.Test
 
                 mock
                     .Setup(x => x.MakeRequestAsync(
-                        It.Is<IEnumerable<ApiResponseErrorHandlingDelegate>>(x => x == Enumerable.Empty<ApiResponseErrorHandlingDelegate>()),
                         It.Is<HttpMethod>(x => x == HttpMethod.Post),
                         It.Is<string>(x => x == $"containers/{id}/kill"),
                         It.Is<string>(x => x == null),

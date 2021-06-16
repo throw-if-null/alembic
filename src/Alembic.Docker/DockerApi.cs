@@ -11,15 +11,12 @@ using System.Threading.Tasks;
 using Alembic.Common.Contracts;
 using Alembic.Common.Services;
 using Microsoft.Extensions.Logging;
-using static Alembic.Docker.DockerClient;
 
 namespace Alembic.Docker
 {
     public sealed class DockerApi : IDockerApi
     {
         private static readonly TimeSpan Timeout = TimeSpan.FromMinutes(2);
-        private static readonly IEnumerable<ApiResponseErrorHandlingDelegate> NoErrorHandlers = Enumerable.Empty<ApiResponseErrorHandlingDelegate>();
-
         private static readonly Action<object?> Callback = delegate (object? stream)
         {
             if (stream == null)
@@ -54,7 +51,6 @@ namespace Alembic.Docker
             (HttpStatusCode status, string body) =
                 await
                     _client.MakeRequestAsync(
-                        NoErrorHandlers,
                         HttpMethod.Get,
                         "_ping",
                         null,
@@ -73,7 +69,6 @@ namespace Alembic.Docker
             (HttpStatusCode status, string body) =
                 await
                     _client.MakeRequestAsync(
-                        NoErrorHandlers,
                         HttpMethod.Get,
                         "containers/json",
                         "all=true",
@@ -94,7 +89,6 @@ namespace Alembic.Docker
             (HttpStatusCode status, string body) =
                 await
                     _client.MakeRequestAsync(
-                        NoErrorHandlers,
                         HttpMethod.Get,
                         $"containers/{id}/json",
                         null,
@@ -130,7 +124,6 @@ namespace Alembic.Docker
             (HttpStatusCode status, string body) =
                 await
                     _client.MakeRequestAsync(
-                        NoErrorHandlers,
                         HttpMethod.Post,
                         $"containers/{id}/kill",
                         null,
@@ -165,7 +158,6 @@ namespace Alembic.Docker
             var stream =
                 await
                     _client.MakeRequestForStreamAsync(
-                        NoErrorHandlers,
                         HttpMethod.Get,
                         "events",
                         @"filters=%7B%22event%22%3A%7B%22health_status%22%3Atrue%7D%7D",
@@ -229,7 +221,6 @@ namespace Alembic.Docker
             (HttpStatusCode status, string body) =
                 await
                     _client.MakeRequestAsync(
-                        NoErrorHandlers,
                         HttpMethod.Post,
                         $"containers/{id}/restart",
                         null,

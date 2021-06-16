@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -11,7 +10,6 @@ using Alembic.Test.Properties;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
-using static Alembic.Docker.DockerClient;
 
 namespace Alembic.Test
 {
@@ -27,7 +25,6 @@ namespace Alembic.Test
                 var mock = new Mock<IDockerClient>();
                 mock
                     .Setup(x => x.MakeRequestAsync(
-                        It.Is<IEnumerable<ApiResponseErrorHandlingDelegate>>(x => x == Enumerable.Empty<ApiResponseErrorHandlingDelegate>()),
                         It.Is<HttpMethod>(x => x == HttpMethod.Get),
                         It.Is<string>(x => x == $"containers/{id}/json"),
                         It.Is<string>(x => x == null),

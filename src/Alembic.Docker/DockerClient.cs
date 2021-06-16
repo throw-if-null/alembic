@@ -1,21 +1,19 @@
-﻿using Alembic.Docker.Client;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-
-using static Alembic.Docker.DockerClient;
+using Alembic.Docker.Client;
 
 namespace Alembic.Docker
 {
     public interface IDockerClient
     {
-        Task<(HttpStatusCode responseStatus, string responseBody)> MakeRequestAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken cancellation);
+        Task<(HttpStatusCode responseStatus, string responseBody)> MakeRequestAsync(HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken cancellation);
 
-        Task<Stream> MakeRequestForStreamAsync(IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers, HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken cancellation);
+        Task<Stream> MakeRequestForStreamAsync(HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken cancellation);
     }
 
     public sealed class DockerClient : IDockerClient
@@ -25,8 +23,6 @@ namespace Alembic.Docker
         private static readonly TimeSpan InfiniteTimeout = TimeSpan.FromMilliseconds(Timeout.Infinite);
         private static readonly Version ApiVersion = new Version("1.40");
 
-        public delegate void ApiResponseErrorHandlingDelegate(HttpStatusCode statusCode, string responseBody);
-
         private readonly IManagedHandlerFactory _factory;
 
         public DockerClient(IManagedHandlerFactory factory)
@@ -35,7 +31,6 @@ namespace Alembic.Docker
         }
 
         public async Task<(HttpStatusCode responseStatus, string responseBody)> MakeRequestAsync(
-            IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
             HttpMethod method,
             string path,
             string queryString,
@@ -56,7 +51,7 @@ namespace Alembic.Docker
 
             using (response)
             {
-                await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers, cancellation);
+                await HandleIfErrorResponseAsync(response.StatusCode, response, cancellation);
 
                 var responseBody = await response.Content.ReadAsStringAsync();
 
@@ -65,7 +60,6 @@ namespace Alembic.Docker
         }
 
         public async Task<Stream> MakeRequestForStreamAsync(
-            IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
             HttpMethod method,
             string path,
             string queryString,
@@ -84,7 +78,7 @@ namespace Alembic.Docker
                         headers,
                         cancellation);
 
-            await HandleIfErrorResponseAsync(response.StatusCode, response, errorHandlers, cancellation);
+            await HandleIfErrorResponseAsync(response.StatusCode, response, cancellation);
 
             return await response.Content.ReadAsStreamAsync();
         }
@@ -162,7 +156,6 @@ namespace Alembic.Docker
         private static async Task HandleIfErrorResponseAsync(
             HttpStatusCode statusCode,
             HttpResponseMessage response,
-            IEnumerable<ApiResponseErrorHandlingDelegate> handlers,
             CancellationToken cancellation)
         {
             bool isErrorResponse = statusCode < HttpStatusCode.OK || statusCode >= HttpStatusCode.BadRequest;
@@ -177,16 +170,6 @@ namespace Alembic.Docker
                 responseBody = await response.Content.ReadAsStringAsync(cancellation);
             }
 
-            // If no customer handlers just default the response.
-            if (handlers != null)
-            {
-                foreach (var handler in handlers)
-                {
-                    handler(statusCode, responseBody);
-                }
-            }
-
-            // No custom handler was fired. Default the response for generic success/failures.
             if (isErrorResponse)
                 throw new DockerApiException(statusCode, responseBody);
         }
