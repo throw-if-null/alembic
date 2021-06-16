@@ -54,7 +54,6 @@ namespace Alembic.Docker
                         HttpMethod.Get,
                         "_ping",
                         null,
-                        null,
                         Timeout,
                         cancellation);
 
@@ -72,7 +71,6 @@ namespace Alembic.Docker
                         HttpMethod.Get,
                         "containers/json",
                         "all=true",
-                        null,
                         Timeout,
                         cancellation);
 
@@ -91,7 +89,6 @@ namespace Alembic.Docker
                     _client.MakeRequestAsync(
                         HttpMethod.Get,
                         $"containers/{id}/json",
-                        null,
                         null,
                         Timeout,
                         cancellation);
@@ -127,7 +124,6 @@ namespace Alembic.Docker
                         HttpMethod.Post,
                         $"containers/{id}/kill",
                         null,
-                        null,
                         Timeout,
                         cancellation);
 
@@ -161,7 +157,6 @@ namespace Alembic.Docker
                         HttpMethod.Get,
                         "events",
                         @"filters=%7B%22event%22%3A%7B%22health_status%22%3Atrue%7D%7D",
-                        null,
                         Timeout,
                         cancellation);
 
@@ -223,7 +218,6 @@ namespace Alembic.Docker
                     _client.MakeRequestAsync(
                         HttpMethod.Post,
                         $"containers/{id}/restart",
-                        null,
                         null,
                         Timeout,
                         cancellation);

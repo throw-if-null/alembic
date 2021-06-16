@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -11,9 +10,9 @@ namespace Alembic.Docker
 {
     public interface IDockerClient
     {
-        Task<(HttpStatusCode responseStatus, string responseBody)> MakeRequestAsync(HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken cancellation);
+        Task<(HttpStatusCode responseStatus, string responseBody)> MakeRequestAsync(HttpMethod method, string path, string queryString, TimeSpan timeout, CancellationToken cancellation);
 
-        Task<Stream> MakeRequestForStreamAsync(HttpMethod method, string path, string queryString, IDictionary<string, string> headers, TimeSpan timeout, CancellationToken cancellation);
+        Task<Stream> MakeRequestForStreamAsync(HttpMethod method, string path, string queryString, TimeSpan timeout, CancellationToken cancellation);
     }
 
     public sealed class DockerClient : IDockerClient
@@ -34,7 +33,6 @@ namespace Alembic.Docker
             HttpMethod method,
             string path,
             string queryString,
-            IDictionary<string, string> headers,
             TimeSpan timeout,
             CancellationToken cancellation)
         {
@@ -46,7 +44,6 @@ namespace Alembic.Docker
                         method,
                         path,
                         queryString,
-                        headers,
                         cancellation);
 
             using (response)
@@ -63,7 +60,6 @@ namespace Alembic.Docker
             HttpMethod method,
             string path,
             string queryString,
-            IDictionary<string, string> headers,
             TimeSpan timeout,
             CancellationToken cancellation)
         {
@@ -75,7 +71,6 @@ namespace Alembic.Docker
                         method,
                         path,
                         queryString,
-                        headers,
                         cancellation);
 
             await HandleIfErrorResponseAsync(response.StatusCode, response, cancellation);
@@ -89,7 +84,6 @@ namespace Alembic.Docker
             HttpMethod method,
             string path,
             string queryString,
-            IDictionary<string, string> headers,
             CancellationToken cancellationToken)
         {
             // If there is a timeout, we turn it into a cancellation token. At the same time, we need to link to the caller's
@@ -110,12 +104,11 @@ namespace Alembic.Docker
                             method,
                             path,
                             queryString,
-                            headers,
                             timeoutTokenSource.Token);
             }
 
             var httpClient = _factory.GetOrCreate();
-            var request = PrepareRequest(method, httpClient.BaseAddress, path, queryString, headers);
+            var request = PrepareRequest(method, httpClient.BaseAddress, path, queryString);
             var response = await httpClient.SendAsync(request, completionOption, cancellationToken);
 
             return response;
@@ -125,8 +118,7 @@ namespace Alembic.Docker
             HttpMethod method,
             Uri baseUri,
             string path,
-            string queryString,
-            IDictionary<string, string> headers)
+            string queryString)
         {
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentNullException(nameof(path));
@@ -141,14 +133,6 @@ namespace Alembic.Docker
             request.Version = new Version(1, 40);
 
             request.Headers.Add("User-Agent", UserAgent);
-
-            if (headers == null)
-                return request;
-
-            foreach (var header in headers)
-            {
-                request.Headers.Add(header.Key, header.Value);
-            }
 
             return request;
         }

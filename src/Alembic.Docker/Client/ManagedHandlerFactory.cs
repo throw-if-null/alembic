@@ -137,7 +137,7 @@ namespace Alembic.Docker.Client
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
     }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -30,7 +29,6 @@ namespace Alembic.Test
                         It.Is<HttpMethod>(x => x == HttpMethod.Get),
                         It.Is<string>(x => x == "containers/json"),
                         It.Is<string>(x => x == "all=true"),
-                        It.Is<Dictionary<string, string>>(x => x == null),
                         It.Is<TimeSpan>(x => x == TimeSpan.FromMinutes(2)),
                         It.Is<CancellationToken>(x => x == CancellationToken.None)))
                     .ReturnsAsync(getResponse);
