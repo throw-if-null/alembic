@@ -40,7 +40,6 @@ namespace Alembic.Docker
                 await
                     PrivateMakeRequestAsync(
                         timeout,
-                        HttpCompletionOption.ResponseContentRead,
                         method,
                         path,
                         queryString,
@@ -67,7 +66,6 @@ namespace Alembic.Docker
                 await
                     PrivateMakeRequestAsync(
                         timeout,
-                        HttpCompletionOption.ResponseHeadersRead,
                         method,
                         path,
                         queryString,
@@ -80,7 +78,6 @@ namespace Alembic.Docker
 
         private async Task<HttpResponseMessage> PrivateMakeRequestAsync(
             TimeSpan timeout,
-            HttpCompletionOption completionOption,
             HttpMethod method,
             string path,
             string queryString,
@@ -100,7 +97,6 @@ namespace Alembic.Docker
                     await
                         PrivateMakeRequestAsync(
                             InfiniteTimeout,
-                            completionOption,
                             method,
                             path,
                             queryString,
@@ -109,7 +105,7 @@ namespace Alembic.Docker
 
             var httpClient = _factory.GetOrCreate();
             var request = PrepareRequest(method, httpClient.BaseAddress, path, queryString);
-            var response = await httpClient.SendAsync(request, completionOption, cancellationToken);
+            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken);
 
             return response;
         }
