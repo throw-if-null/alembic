@@ -36,11 +36,14 @@ namespace Alembic
 
                     services.AddLogging(x => x.AddConsole());
 
+                    services.AddHttpClient();
+
                     services.AddSingleton<IReporter, WebHookReporter>();
                     services.AddSingleton<IRetryProvider, RetryProvider>();
                     services.AddSingleton<IManagedHandlerFactory, ManagedHandlerFactory>();
                     services.AddSingleton<IDockerClient, DockerClient>();
                     services.AddSingleton<IDockerApi, DockerApi>();
+                    services.AddSingleton<IContainerRetryTracker, ContainerRetryTracker>();
                     services.AddTransient<IDockerMonitor, DockerMonitor>();
 
                     services.AddHostedService<AlembicHost>();
