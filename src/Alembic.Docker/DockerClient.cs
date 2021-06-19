@@ -39,7 +39,7 @@ namespace Alembic.Docker
             var httpClient = _factory.GetOrCreate();
             var request = PrepareRequest(method, httpClient.BaseAddress, path, queryString);
 
-            using var response = await PrivateMakeRequestAsync(request, timeout, cancellation);
+            var response = await PrivateMakeRequestAsync(request, timeout, cancellation);
 
             await HandleIfErrorResponseAsync(response.StatusCode, response, cancellation);
 
@@ -58,7 +58,7 @@ namespace Alembic.Docker
             var httpClient = _factory.GetOrCreate();
             var request = PrepareRequest(method, httpClient.BaseAddress, path, queryString);
 
-            using var response = await PrivateMakeRequestAsync(request, timeout, cancellation);
+            var response = await PrivateMakeRequestAsync(request, timeout, cancellation);
 
             await HandleIfErrorResponseAsync(response.StatusCode, response, cancellation);
 

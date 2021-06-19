@@ -1,4 +1,6 @@
-﻿using Alembic.Common.Resiliency;
+﻿using System.IO;
+using System.Threading.Tasks;
+using Alembic.Common.Resiliency;
 using Alembic.Common.Services;
 using Alembic.Docker;
 using Alembic.Docker.Client;
@@ -8,12 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Alembic
 {
-    internal class Program
+    internal static class Program
     {
         internal static Task Main(string[] args)
         {
@@ -36,11 +36,14 @@ namespace Alembic
 
                     services.AddLogging(x => x.AddConsole());
 
+                    services.AddHttpClient();
+
                     services.AddSingleton<IReporter, WebHookReporter>();
                     services.AddSingleton<IRetryProvider, RetryProvider>();
                     services.AddSingleton<IManagedHandlerFactory, ManagedHandlerFactory>();
                     services.AddSingleton<IDockerClient, DockerClient>();
                     services.AddSingleton<IDockerApi, DockerApi>();
+                    services.AddSingleton<IContainerRetryTracker, ContainerRetryTracker>();
                     services.AddTransient<IDockerMonitor, DockerMonitor>();
 
                     services.AddHostedService<AlembicHost>();
