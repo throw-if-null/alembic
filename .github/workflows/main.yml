@@ -21,7 +21,7 @@ jobs:
           RELEASE_BRANCHES: branch-zero
         
       - name: Publish Docker
-        uses: elgohr/Publish-Docker-Github-Action@3.04
+        uses: elgohr/Publish-Docker-Github-Action@v5
         with:
           name: throw-if-null/alembic/alembic
           username: ${{ github.actor }}
